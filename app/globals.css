@@ -1,26 +1,55 @@
 @import "tailwindcss";
 
+@theme {
+  --color-cream: #FAF8F3;
+  --color-cream-2: #F0E9DC;
+  --color-cream-3: #E4D8C6;
+  --color-burg: #7C1B2B;
+  --color-burg-2: #9B2F3F;
+  --color-burg-3: #5A1120;
+  --color-gold: #C9A96E;
+  --color-gold-2: #D8BC8A;
+  --color-dark: #231010;
+  --color-mid: #5C3535;
+  --color-soft: #7A5555;
+
+  --font-display: 'Cormorant Garamond', serif;
+  --font-script: 'Great Vibes', cursive;
+  --font-body: 'Montserrat', sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --cream: #FAF8F3;
+  --cream-2: #F0E9DC;
+  --cream-3: #E4D8C6;
+  --burg: #7C1B2B;
+  --burg-2: #9B2F3F;
+  --burg-3: #5A1120;
+  --gold: #C9A96E;
+  --gold-2: #D8BC8A;
+  --dark: #231010;
+  --mid: #5C3535;
+  --soft: #7A5555;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--cream);
+  color: var(--dark);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.phone {
+  max-width: 430px;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+@media (min-width: 500px) {
+  .phone {
+    border-radius: 40px;
+    box-shadow: 0 20px 60px rgba(35, 16, 16, 0.3);
+    min-height: auto;
+  }
 }
