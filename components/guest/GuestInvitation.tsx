@@ -8,15 +8,17 @@ import PhotoAlbum from './PhotoAlbum'
 import LocationMap from './LocationMap'
 import BankQR from './BankQR'
 import WishesWall from './WishesWall'
+import Petals from './Petals'
 
-interface Props { config: WeddingConfig | null }
+interface Props { config: WeddingConfig | null; guestName?: string }
 
-export default function GuestInvitation({ config }: Props) {
-  const weddingDate = config?.wedding_date ?? '2025-12-13T11:00:00+07:00'
+export default function GuestInvitation({ config, guestName }: Props) {
+  const weddingDate = config?.wedding_date ?? '2026-07-03T11:00:00+07:00'
 
   return (
     <div id="main-content" style={{ display: 'none' }}>
-      <HeroCard config={config} />
+      <Petals count={16} />
+      <HeroCard config={config} guestName={guestName} />
       {config?.music_url && <MusicPlayer musicUrl={config.music_url} />}
       <CountdownTimer weddingDate={weddingDate} />
       <EventDetails config={config} />
@@ -35,7 +37,7 @@ export default function GuestInvitation({ config }: Props) {
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.8rem', color: '#7A5555', marginTop: '.5rem' }}>
           {config?.wedding_date
             ? new Date(config.wedding_date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
-            : '13.12.2025'}
+            : '03.07.2026'}
         </p>
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '.7rem', color: '#7A5555', marginTop: '1rem' }}>
           Made with ♥

@@ -2,15 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 
 export async function GET() {
-  const supabase = await createServiceClient()
-  const { data, error } = await supabase
-    .from('wishes')
-    .select('id, guest_name, message, likes, created_at')
-    .eq('approved', true)
-    .order('created_at', { ascending: false })
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!url || url.includes('placeholder')) return NextResponse.json([])
+  try {
+    const supabase = await createServiceClient()
+    const { data, error } = await supabase
+      .from('wishes')
+      .select('id, guest_name, message, likes, created_at')
+      .eq('approved', true)
+      .order('created_at', { ascending: false })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+    if (error) return NextResponse.json([])
+    return NextResponse.json(data ?? [])
+  } catch {
+    return NextResponse.json([])
+  }
 }
 
 export async function POST(request: NextRequest) {

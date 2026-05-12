@@ -46,6 +46,24 @@ export default function EventDetails({ config }: Props) {
           font-family: 'Montserrat', sans-serif; font-size: .75rem;
           color: #5C3535; margin-top: .25rem;
         }
+        .details-actions {
+          display: flex; flex-wrap: wrap; gap: .75rem;
+          justify-content: center; margin-top: 1.25rem;
+        }
+        .details-btn {
+          display: inline-flex; align-items: center; gap: .5rem;
+          padding: .7rem 1.4rem;
+          border: 1px solid #7C1B2B;
+          background: #FAF8F3;
+          color: #7C1B2B;
+          font-family: 'Montserrat', sans-serif;
+          font-size: .68rem; letter-spacing: .22em; text-transform: uppercase;
+          text-decoration: none; cursor: pointer;
+          transition: background .25s, color .25s;
+        }
+        .details-btn:hover { background: #7C1B2B; color: #FAF8F3; }
+        .details-btn-primary { background: #7C1B2B; color: #FAF8F3; }
+        .details-btn-primary:hover { background: #5A1120; }
       `}</style>
 
       <section className="details">
@@ -62,6 +80,17 @@ export default function EventDetails({ config }: Props) {
             </div>
           </div>
         ))}
+
+        <div className="details-actions">
+          <a className="details-btn details-btn-primary" href="/api/calendar.ics" download="wedding.ics">
+            📅 Lưu vào lịch
+          </a>
+          {config?.maps_url && (
+            <a className="details-btn" href={config.maps_url} target="_blank" rel="noopener noreferrer">
+              📍 Chỉ đường
+            </a>
+          )}
+        </div>
       </section>
     </>
   )

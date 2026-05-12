@@ -12,43 +12,125 @@ export default function LocationMap({ config }: Props) {
   return (
     <>
       <style>{`
-        .location { padding: 2.5rem 1.5rem; background: #FAF8F3; }
-        .location-title {
-          font-family: 'Cormorant Garamond', serif; font-size: 1.4rem;
-          color: #231010; text-align: center; margin-bottom: 1.25rem;
+        .loc {
+          padding: clamp(3rem, 7vw, 5rem) 1.5rem;
+          background: #F0E9DC;
         }
-        .location-address {
-          font-family: 'Montserrat', sans-serif; font-size: .8rem;
-          color: #5C3535; text-align: center; margin-bottom: 1rem; line-height: 1.6;
+        .loc-inner { max-width: 640px; margin: 0 auto; text-align: center; }
+        .loc-eyebrow {
+          display: block;
+          font-family: 'Montserrat', sans-serif;
+          font-size: .68rem; letter-spacing: .38em;
+          text-transform: uppercase; color: #C9A96E;
+          margin-bottom: .75rem;
         }
-        .location-map { width: 100%; height: 200px; border-radius: 12px; border: none; display: block; }
-        .location-btn {
-          display: block; width: 100%; margin-top: 1rem; padding: .85rem;
-          border-radius: 12px; background: #7C1B2B; color: #FAF8F3;
-          text-align: center; font-family: 'Montserrat', sans-serif;
-          font-size: .8rem; font-weight: 500; text-decoration: none;
-          letter-spacing: .05em; transition: background .15s;
+        .loc-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+          color: #7C1B2B; font-weight: 400;
+          margin: 0 0 1.25rem;
         }
-        .location-btn:hover { background: #9B2F3F; }
+        .loc-orn {
+          display: flex; align-items: center; justify-content: center;
+          gap: 1rem; margin: 1.25rem auto 2rem;
+        }
+        .loc-orn-line { flex: 1; max-width: 80px; height: 1px; background: #C9A96E; opacity: .6; }
+        .loc-orn-dot {
+          width: 6px; height: 6px; background: #C9A96E;
+          transform: rotate(45deg);
+        }
+        .loc-venue {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+          font-weight: 500; color: #231010;
+          margin: 0 0 .5rem; letter-spacing: .02em;
+        }
+        .loc-address {
+          font-family: 'Cormorant Garamond', serif;
+          font-style: italic;
+          font-size: clamp(.9rem, 1.6vw, 1.05rem);
+          color: #5C3535; line-height: 1.7;
+          margin: 0 0 2rem;
+        }
+        .loc-frame {
+          position: relative;
+          background: #FAF8F3;
+          padding: 14px;
+          border: 1px solid #E4D8C6;
+          box-shadow: 0 18px 40px -25px rgba(124,27,43,.3);
+        }
+        .loc-frame::before {
+          content: ''; position: absolute; inset: 6px;
+          border: 1px solid #C9A96E; opacity: .35;
+          pointer-events: none; z-index: 2;
+        }
+        .loc-map {
+          width: 100%; height: clamp(220px, 40vw, 340px);
+          border: none; display: block;
+          filter: saturate(.9) contrast(.95);
+        }
+        .loc-actions {
+          display: flex; flex-wrap: wrap; gap: .75rem;
+          justify-content: center; margin-top: 2rem;
+        }
+        .loc-btn {
+          display: inline-flex; align-items: center; gap: .5rem;
+          padding: .85rem 1.6rem;
+          font-family: 'Montserrat', sans-serif;
+          font-size: .7rem; letter-spacing: .25em; text-transform: uppercase;
+          text-decoration: none; cursor: pointer;
+          transition: background .25s, color .25s;
+        }
+        .loc-btn-primary {
+          background: #7C1B2B; color: #FAF8F3;
+          border: 1px solid #7C1B2B;
+        }
+        .loc-btn-primary:hover { background: #5A1120; }
+        .loc-btn-secondary {
+          background: transparent; color: #7C1B2B;
+          border: 1px solid #7C1B2B;
+        }
+        .loc-btn-secondary:hover { background: #7C1B2B; color: #FAF8F3; }
       `}</style>
 
-      <section className="location">
-        <h2 className="location-title">Địa điểm</h2>
-        <p className="location-address">
-          {config?.venue_name ?? 'Trung Tâm Tiệc Cưới Ánh Dương'}<br />
-          {config?.venue_address ?? 'Quận 1, TP.HCM'}
-        </p>
-        <iframe
-          src={mapsUrl}
-          className="location-map"
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          title="Bản đồ địa điểm"
-          allowFullScreen
-        />
-        <a href={navUrl} target="_blank" rel="noopener noreferrer" className="location-btn">
-          🗺 Chỉ đường
-        </a>
+      <section className="loc">
+        <div className="loc-inner">
+          <span className="loc-eyebrow">Địa điểm</span>
+          <h2 className="loc-title">Nơi diễn ra buổi lễ</h2>
+
+          <div className="loc-orn">
+            <span className="loc-orn-line" />
+            <span className="loc-orn-dot" />
+            <span className="loc-orn-line" />
+          </div>
+
+          <p className="loc-venue">
+            {config?.venue_name ?? 'Trung Tâm Tiệc Cưới Ánh Dương'}
+          </p>
+          <p className="loc-address">
+            {config?.venue_address ?? 'Quận 1, TP.HCM'}
+          </p>
+
+          <div className="loc-frame">
+            <iframe
+              src={mapsUrl}
+              className="loc-map"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Bản đồ địa điểm"
+              allowFullScreen
+            />
+          </div>
+
+          <div className="loc-actions">
+            <a href={navUrl} target="_blank" rel="noopener noreferrer" className="loc-btn loc-btn-primary">
+              Mở chỉ đường
+            </a>
+            <a href="/api/calendar.ics" download="wedding.ics" className="loc-btn loc-btn-secondary">
+              Lưu vào lịch
+            </a>
+          </div>
+        </div>
       </section>
     </>
   )

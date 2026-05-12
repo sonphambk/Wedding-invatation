@@ -9,7 +9,10 @@ export default function WishesWall() {
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    fetch('/api/wishes').then((r) => r.json()).then(setWishes).catch(() => {})
+    fetch('/api/wishes')
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setWishes(data) })
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -37,7 +40,10 @@ export default function WishesWall() {
       .subscribe()
 
     const pollId = setInterval(() => {
-      fetch('/api/wishes').then((r) => r.json()).then(setWishes).catch(() => {})
+      fetch('/api/wishes')
+        .then((r) => r.json())
+        .then((data) => { if (Array.isArray(data)) setWishes(data) })
+        .catch(() => {})
     }, 30_000)
 
     return () => { supabase.removeChannel(channel); clearInterval(pollId) }
