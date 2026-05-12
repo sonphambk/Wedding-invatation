@@ -179,27 +179,20 @@ export default function HeroCard({ config, guestName }: Props) {
         @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
         @keyframes tickPulse { 0%, 100% { opacity: .4 } 50% { opacity: 1 } }
 
-        /* MOBILE */
+        /* MOBILE — match desktop composition, just scaled down */
         @media (max-width: 560px) {
           .hero-watermark {
             font-size: clamp(180px, 60vw, 260px);
             opacity: .025;
           }
-          .date-stack { margin-bottom: clamp(2.5rem, 7vw, 4rem); }
           .save-bg {
-            /* sit cleanly UNDER the date, not behind it */
-            top: auto;
-            bottom: -.55em;
-            transform: translate(-50%, 100%) rotate(-6deg);
-            font-size: clamp(1.4rem, 7vw, 2rem);
-            opacity: .7;
-            color: #e7b6a6;
+            /* same diagonal "behind the date" look as desktop, scaled */
+            transform: translate(-50%, 70%) rotate(-5deg);
+            font-size: clamp(2rem, 10vw, 3.2rem);
+            opacity: .85;
           }
           .hero-date { font-size: clamp(2.8rem, 14vw, 4.4rem); }
           .hero-names { letter-spacing: .1em; font-size: clamp(1.1rem, 5.2vw, 1.6rem); }
-        }
-        @media (max-width: 380px) {
-          .save-bg { display: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
