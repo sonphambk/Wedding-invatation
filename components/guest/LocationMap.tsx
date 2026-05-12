@@ -2,12 +2,26 @@ import { WeddingConfig } from '@/lib/types'
 
 interface Props { config: WeddingConfig | null }
 
+function toEmbedSrc(savedUrl: string | null | undefined, address: string | null | undefined): string {
+  const url = (savedUrl || '').trim()
+  // Already an embed iframe URL — use as-is
+  if (url && (url.includes('/maps/embed') || url.includes('output=embed'))) {
+    return url
+  }
+  // Anything else (short link maps.app.goo.gl, share link, place URL, empty) →
+  // build a working iframe-embeddable URL from the address. The classic
+  // `maps.google.com/maps?q=...&output=embed` endpoint works without an API key
+  // and is iframe-friendly (no X-Frame-Options block).
+  const q = (address || '').trim() || 'Quận 1, TP.HCM'
+  return `https://www.google.com/maps?q=${encodeURIComponent(q)}&hl=vi&z=16&output=embed`
+}
+
 export default function LocationMap({ config }: Props) {
-  const mapsUrl = config?.maps_url
-    ?? 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4!2d106.7009!3d10.7769!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f4670702e31%3A0xa5777fb3b5a1a6bc!2zUXXhuq1uIDEsIEjhu5MgQ2jDrSBNaW5o!5e0!3m2!1svi!2s!4v1'
-  const navUrl = config?.venue_address
-    ? `https://maps.google.com/?q=${encodeURIComponent(config.venue_address)}`
-    : 'https://maps.google.com/?q=Quận+1+TP.HCM'
+  const mapsUrl = toEmbedSrc(config?.maps_url, config?.venue_address)
+  const navUrl = config?.maps_url
+    || (config?.venue_address
+      ? `https://maps.google.com/?q=${encodeURIComponent(config.venue_address)}`
+      : 'https://maps.google.com/?q=Quận+1+TP.HCM')
 
   return (
     <>
