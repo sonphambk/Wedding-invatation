@@ -8,247 +8,208 @@ interface Props {
 }
 
 export default function EnvelopeIntro({ brideName, groomName, guestName }: Props) {
-  const envelopeRef = useRef<HTMLDivElement>(null)
-  const [opening, setOpening] = useState(false)
+  const [opened, setOpened] = useState(false)
+  const [done, setDone] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  function open() {
+    if (opened) return
+    setOpened(true)
+    setTimeout(() => {
+      const main = document.getElementById('main-content')
+      if (main) main.style.display = 'block'
+      setDone(true)
+      setTimeout(() => main?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+    }, 1300)
+  }
 
   useEffect(() => {
-    const envelope = envelopeRef.current
-    if (!envelope) return
-
-    function open() {
-      if (!envelope || opening) return
-      setOpening(true)
-      // Total animation: 1.8s. Reveal main content at 1.6s.
-      setTimeout(() => {
-        const main = document.getElementById('main-content')
-        if (main) main.style.display = 'block'
-        window.dispatchEvent(new Event('envelope-opened'))
-      }, 1600)
-      setTimeout(() => {
-        envelope.style.display = 'none'
-      }, 1900)
-    }
-
-    envelope.addEventListener('click', open)
-    return () => envelope.removeEventListener('click', open)
-  }, [opening])
+    if (!done) return
+    const el = containerRef.current
+    if (el) el.style.display = 'none'
+  }, [done])
 
   return (
     <>
       <style>{`
-        #envelope {
-          position: fixed; inset: 0; z-index: 200;
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          background: #FAF8F3; cursor: pointer;
-          overflow: hidden;
-          perspective: 1400px;
-        }
-        #envelope.opening { animation: bgFade 1.9s ease forwards; animation-delay: .9s; }
-        @keyframes bgFade { to { opacity: 0; } }
-
-        .env-stage {
+        .env2 {
           position: relative;
-          width: min(86vw, 380px);
-          aspect-ratio: 3 / 2;
-          transform-style: preserve-3d;
-        }
-        .env-stage.opening { animation: stageLift 1.9s ease forwards; }
-        @keyframes stageLift {
-          0%   { transform: translateY(0) scale(1); }
-          70%  { transform: translateY(-10px) scale(1.04); }
-          100% { transform: translateY(-40vh) scale(.6); opacity: 0; }
-        }
-
-        .env-body {
-          position: absolute; inset: 0;
-          background: #F1E6D5;
-          border: 1px solid #D9C8AC;
-          box-shadow: 0 20px 50px -20px rgba(124,27,43,.25);
+          min-height: 100dvh;
+          width: 100%;
+          background: linear-gradient(180deg, #FAF6EE 0%, #F0E9DC 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: clamp(1rem, 3vw, 2rem);
           overflow: hidden;
         }
-        /* The pocket triangles (visual envelope sides) */
-        .env-body::before, .env-body::after {
-          content: ''; position: absolute; bottom: 0; width: 50%; height: 100%;
-          background: #E8D9BE;
+        .env2::before {
+          content: '';
+          position: absolute; inset: 0;
+          background:
+            radial-gradient(circle at 15% 20%, rgba(124,27,43,.05), transparent 35%),
+            radial-gradient(circle at 85% 80%, rgba(201,169,110,.06), transparent 40%);
+          pointer-events: none;
         }
-        .env-body::before { left: 0; clip-path: polygon(0 0, 0 100%, 100% 100%); }
-        .env-body::after  { right: 0; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
 
-        .env-card {
-          position: absolute; inset: 8% 6%;
+        .env2-card {
+          position: relative;
+          width: min(92vw, 360px);
+          aspect-ratio: 360 / 540;
           background: #FAF8F3;
-          border: 1px solid #E4D8C6;
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          gap: .35rem; padding: 1rem;
-          box-shadow: 0 8px 20px -8px rgba(0,0,0,.15);
-          z-index: 1;
+          box-shadow:
+            0 30px 60px -25px rgba(124,27,43,.35),
+            0 8px 20px -8px rgba(0,0,0,.15);
+          cursor: pointer;
+          transform: ${opened ? 'translateY(-3%) scale(1.02)' : 'translateY(0) scale(1)'};
+          opacity: ${opened ? 0 : 1};
+          transition:
+            transform 1.1s cubic-bezier(.22,.9,.32,1),
+            opacity .9s ease .25s;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: clamp(1.5rem, 5vw, 2.4rem);
+          text-align: center;
         }
-        .env-card.slide-up {
-          animation: cardSlide 1.4s ease forwards;
-          animation-delay: .35s;
+        .env2-card::before {
+          content: '';
+          position: absolute; inset: 10px;
+          border: 1px solid rgba(201,169,110,.35);
+          pointer-events: none;
         }
-        @keyframes cardSlide {
-          0%   { transform: translateY(0); }
-          60%  { transform: translateY(-58%); }
-          100% { transform: translateY(-58%); }
+
+        .env2-eyebrow {
+          font-family: 'Montserrat', sans-serif;
+          font-size: .65rem;
+          letter-spacing: .42em;
+          text-transform: uppercase;
+          color: #C9A96E;
+          margin-bottom: clamp(1.2rem, 4vw, 1.8rem);
         }
-        .env-card-script {
-          font-family: 'Allura', 'Great Vibes', cursive;
-          font-size: clamp(1.5rem, 4.5vw, 2rem);
-          color: #E0A890;
+
+        .env2-disc {
+          width: clamp(110px, 28vw, 150px);
+          height: clamp(110px, 28vw, 150px);
+          margin-bottom: clamp(1.4rem, 4vw, 2rem);
+        }
+        .env2-disc svg { width: 100%; height: 100%; display: block; }
+
+        .env2-names {
+          font-family: 'Great Vibes', cursive;
+          color: #7C1B2B;
+          font-size: clamp(1.8rem, 6vw, 2.4rem);
+          line-height: 1.1;
+          margin: 0;
+        }
+        .env2-amp {
+          display: block;
+          font-size: .55em;
+          color: #C9A96E;
+          margin: -.05em 0;
+        }
+
+        .env2-divider {
+          width: 50px; height: 1px;
+          background: #C9A96E;
+          opacity: .55;
+          margin: clamp(1rem, 3vw, 1.4rem) auto;
+        }
+
+        .env2-date {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          color: #7C1B2B;
+          font-size: clamp(1.4rem, 4.2vw, 1.85rem);
+          letter-spacing: .04em;
+          margin: 0;
           line-height: 1;
         }
-        .env-card-names {
-          font-family: 'Cormorant Garamond', serif;
-          font-weight: 500;
-          font-size: clamp(.85rem, 2.4vw, 1rem);
-          letter-spacing: .18em;
-          color: #7C1B2B;
-          text-transform: uppercase;
-          text-align: center;
-        }
-        .env-card-guest {
+        .env2-save {
+          display: block;
+          margin-top: .5rem;
           font-family: 'Cormorant Garamond', serif;
           font-style: italic;
-          font-size: .72rem;
           color: #5C3535;
-          margin-top: .2rem;
+          font-size: clamp(.78rem, 1.8vw, .92rem);
+          letter-spacing: .04em;
         }
 
-        /* Envelope flap - closed by default, rotates up on open */
-        .env-flap {
-          position: absolute; top: 0; left: 0; right: 0;
-          height: 65%;
-          background: #E8D9BE;
-          clip-path: polygon(0 0, 100% 0, 50% 100%);
-          transform-origin: top center;
-          z-index: 2;
-          box-shadow: 0 4px 8px rgba(0,0,0,.05);
+        .env2-guest {
+          margin-top: clamp(1.2rem, 4vw, 1.8rem);
+          font-family: 'Cormorant Garamond', serif;
+          font-style: italic;
+          color: #231010;
+          font-size: clamp(.78rem, 1.8vw, .92rem);
+          line-height: 1.5;
         }
-        .env-flap.opening {
-          animation: flapOpen 1s ease forwards;
-        }
-        @keyframes flapOpen {
-          0%   { transform: rotateX(0); }
-          100% { transform: rotateX(-180deg); }
-        }
-
-        /* Wax seal */
-        .env-seal {
-          position: absolute; top: 58%; left: 50%;
-          transform: translate(-50%, -50%);
-          width: clamp(48px, 12vw, 68px); height: clamp(48px, 12vw, 68px);
-          border-radius: 50%;
-          background: radial-gradient(circle at 35% 30%, #A12838, #7C1B2B 65%, #5A1120);
-          box-shadow:
-            inset 0 -4px 8px rgba(0,0,0,.3),
-            inset 0 4px 6px rgba(255,255,255,.15),
-            0 6px 14px rgba(124,27,43,.4);
-          display: flex; align-items: center; justify-content: center;
-          z-index: 3;
-          animation: sealPulse 2.4s ease-in-out infinite;
-        }
-        .env-seal.opening {
-          animation: sealCrack .5s ease forwards;
-        }
-        @keyframes sealPulse {
-          0%, 100% { box-shadow: inset 0 -4px 8px rgba(0,0,0,.3), inset 0 4px 6px rgba(255,255,255,.15), 0 6px 14px rgba(124,27,43,.4), 0 0 0 6px rgba(124,27,43,.08); }
-          50%      { box-shadow: inset 0 -4px 8px rgba(0,0,0,.3), inset 0 4px 6px rgba(255,255,255,.15), 0 6px 14px rgba(124,27,43,.4), 0 0 0 14px rgba(124,27,43,.02); }
-        }
-        @keyframes sealCrack {
-          0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-          40%  { transform: translate(-50%, -50%) scale(1.15) rotate(8deg); opacity: 1; }
-          100% { transform: translate(-50%, -50%) scale(.6) rotate(-20deg); opacity: 0; }
-        }
-        .env-seal-xi {
-          font-family: serif; font-size: 1.6rem;
-          color: #F1E6D5; line-height: 1;
-          text-shadow: 0 1px 2px rgba(0,0,0,.3);
-        }
-
-        .env-prompt {
-          position: absolute;
-          bottom: clamp(2rem, 6vh, 4rem);
-          left: 0; right: 0;
-          text-align: center;
-          font-family: 'Montserrat', sans-serif;
-          font-size: .7rem;
-          letter-spacing: .35em;
-          text-transform: uppercase;
-          color: #7A5555;
-          animation: promptBlink 1.6s ease-in-out infinite;
-        }
-        .env-prompt.opening { animation: fadeOut .4s ease forwards; }
-        @keyframes promptBlink { 0%,100% { opacity: .4 } 50% { opacity: 1 } }
-        @keyframes fadeOut { to { opacity: 0 } }
-
-        .env-eyebrow {
-          position: absolute;
-          top: clamp(2rem, 6vh, 4rem);
-          left: 0; right: 0;
-          text-align: center;
+        .env2-guest strong {
+          display: block;
+          margin-top: .3rem;
           font-family: 'Great Vibes', cursive;
-          font-size: clamp(1.4rem, 4vw, 2rem);
+          font-style: normal;
+          font-weight: 400;
           color: #7C1B2B;
-        }
-        .env-eyebrow.opening { animation: fadeOut .4s ease forwards; }
-
-        .petal {
-          position: absolute; width: 8px; height: 12px;
-          border-radius: 50% 0 50% 0; background: #D8BC8A;
-          opacity: 0; animation: petalFall linear infinite; pointer-events: none;
-        }
-        @keyframes petalFall {
-          0%   { opacity: 0; transform: translateY(-20px) rotate(0deg) }
-          10%  { opacity: .6 }
-          90%  { opacity: .3 }
-          100% { opacity: 0; transform: translateY(100vh) rotate(360deg) }
+          font-size: clamp(1.4rem, 3.6vw, 1.7rem);
+          line-height: 1;
         }
 
-        @media (prefers-reduced-motion: reduce) {
-          .env-stage.opening, .env-flap.opening, .env-card.slide-up, .env-seal.opening {
-            animation: none !important;
-          }
-          .env-stage.opening { opacity: 0; transition: opacity .3s; }
+        .env2-tap {
+          margin-top: clamp(1.5rem, 5vh, 2.2rem);
+          font-family: 'Great Vibes', cursive;
+          color: #7C1B2B;
+          font-size: clamp(1.2rem, 3vw, 1.5rem);
+          opacity: ${opened ? 0 : 1};
+          transition: opacity .4s;
+          animation: ${opened ? 'none' : 'env2Bob 2.2s ease-in-out infinite'};
+        }
+        @keyframes env2Bob {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
         }
       `}</style>
 
-      <div id="envelope" ref={envelopeRef} className={opening ? 'opening' : ''}>
-        {[
-          { left: '15%', delay: '0s',   dur: '6s'   },
-          { left: '30%', delay: '1.5s', dur: '8s'   },
-          { left: '50%', delay: '0.8s', dur: '7s'   },
-          { left: '65%', delay: '2.2s', dur: '9s'   },
-          { left: '80%', delay: '0.3s', dur: '6.5s' },
-          { left: '40%', delay: '3.1s', dur: '7.5s' },
-        ].map((p, i) => (
-          <span key={i} className="petal"
-            style={{ left: p.left, animationDelay: p.delay, animationDuration: p.dur }} />
-        ))}
+      <div className="env2" ref={containerRef} role="button" tabIndex={0}
+           onClick={open}
+           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open() } }}>
 
-        <p className={`env-eyebrow ${opening ? 'opening' : ''}`}>Wedding Invitation</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div className="env2-card">
+            <span className="env2-eyebrow">Wedding Invitation</span>
 
-        <div className={`env-stage ${opening ? 'opening' : ''}`}>
-          <div className="env-body">
-            <div className={`env-card ${opening ? 'slide-up' : ''}`}>
-              <span className="env-card-script">Save the Date</span>
-              <span className="env-card-names">{brideName} &amp; {groomName}</span>
-              {guestName && (
-                <span className="env-card-guest">Kính mời {guestName}</span>
-              )}
+            <div className="env2-disc" aria-hidden="true">
+              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="47" fill="#7C1B2B" />
+                <circle cx="50" cy="50" r="43" fill="none" stroke="#C9A96E" strokeWidth=".6" opacity=".5" />
+                <text x="50" y="50" textAnchor="middle" dominantBaseline="central"
+                      fontSize="62" fontWeight="700"
+                      fontFamily="'Noto Serif SC','Songti SC',serif"
+                      fill="#FAF6EE">囍</text>
+              </svg>
             </div>
-            <div className={`env-flap ${opening ? 'opening' : ''}`} />
-            <div className={`env-seal ${opening ? 'opening' : ''}`}>
-              <span className="env-seal-xi">囍</span>
-            </div>
+
+            <h1 className="env2-names">
+              {groomName}
+              <span className="env2-amp">&amp;</span>
+              {brideName}
+            </h1>
+
+            <div className="env2-divider" />
+
+            <p className="env2-date">05.07.2026</p>
+            <span className="env2-save">Save the Date</span>
+
+            {guestName && (
+              <p className="env2-guest">
+                Trân trọng kính mời
+                <strong>{guestName}</strong>
+              </p>
+            )}
           </div>
-        </div>
 
-        <p className={`env-prompt ${opening ? 'opening' : ''}`}>
-          Chạm để mở thiệp
-        </p>
+          <span className="env2-tap">Chạm để mở thiệp ✦</span>
+        </div>
       </div>
     </>
   )

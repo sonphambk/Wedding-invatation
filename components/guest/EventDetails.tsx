@@ -2,94 +2,197 @@ import { WeddingConfig } from '@/lib/types'
 
 interface Props { config: WeddingConfig | null }
 
-export default function EventDetails({ config }: Props) {
-  const dateStr = config?.wedding_date
-    ? new Date(config.wedding_date).toLocaleDateString('vi-VN', {
-        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
-      })
-    : 'Thứ Bảy, 13 tháng 12, 2025'
-  const timeStr = config?.wedding_date
-    ? new Date(config.wedding_date).toLocaleTimeString('vi-VN', {
-        hour: '2-digit', minute: '2-digit', hour12: false,
-      }) + ' SA'
-    : '11:00 SA'
+const VI_WEEKDAYS = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
 
-  const items = [
-    { icon: '📅', label: 'Ngày cưới', value: dateStr },
-    { icon: '⏰', label: 'Thời gian', value: timeStr },
-    { icon: '📍', label: 'Địa điểm',  value: config?.venue_name ?? 'Trung Tâm Tiệc Cưới Ánh Dương' },
-    ...(config?.dresscode ? [{ icon: '👗', label: 'Trang phục', value: config.dresscode }] : []),
-  ]
+export default function EventDetails({ config }: Props) {
+  const d = config?.wedding_date ? new Date(config.wedding_date) : new Date('2026-07-05T11:00:00+07:00')
+  const dd = String(d.getDate()).padStart(2, '0')
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const yyyy = d.getFullYear()
+  const weekday = VI_WEEKDAYS[d.getDay()]
+  const time = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })
+  const heroPhoto = config?.photos?.[0]?.url ?? null
 
   return (
     <>
       <style>{`
-        .details { padding: 2.5rem 1.5rem; background: #F0E9DC; }
-        .details-title {
-          font-family: 'Cormorant Garamond', serif; font-size: 1.4rem;
-          color: #231010; text-align: center; margin-bottom: 1.5rem;
+        .ev-sec {
+          background: #F5EFE3;
+          padding: clamp(3rem, 7vw, 5rem) clamp(1.25rem, 4vw, 2rem);
         }
-        .details-card {
-          background: #FAF8F3; border-radius: 12px; padding: 1rem 1.25rem;
-          margin-bottom: .75rem; display: flex; align-items: flex-start; gap: .75rem;
+        .ev-inner {
+          max-width: 1040px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: 1.1fr 1fr;
+          gap: clamp(2rem, 5vw, 4rem);
+          align-items: center;
         }
-        .details-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: .1rem; }
-        .details-label {
-          font-family: 'Montserrat', sans-serif; font-size: .6rem;
-          letter-spacing: .15em; text-transform: uppercase; color: #7A5555; margin-bottom: .2rem;
+        @media (max-width: 720px) {
+          .ev-inner { grid-template-columns: 1fr; }
         }
-        .details-value {
-          font-family: 'Cormorant Garamond', serif; font-size: 1rem;
-          color: #231010; line-height: 1.4;
-        }
-        .details-address {
-          font-family: 'Montserrat', sans-serif; font-size: .75rem;
-          color: #5C3535; margin-top: .25rem;
-        }
-        .details-actions {
-          display: flex; flex-wrap: wrap; gap: .75rem;
-          justify-content: center; margin-top: 1.25rem;
-        }
-        .details-btn {
-          display: inline-flex; align-items: center; gap: .5rem;
-          padding: .7rem 1.4rem;
-          border: 1px solid #7C1B2B;
+        .ev-frame {
+          position: relative;
           background: #FAF8F3;
-          color: #7C1B2B;
-          font-family: 'Montserrat', sans-serif;
-          font-size: .68rem; letter-spacing: .22em; text-transform: uppercase;
-          text-decoration: none; cursor: pointer;
-          transition: background .25s, color .25s;
+          padding: 14px;
+          border: 1px solid #E4D8C6;
+          box-shadow: 0 18px 40px -25px rgba(124,27,43,.3);
+          aspect-ratio: 4 / 5;
+          overflow: hidden;
         }
-        .details-btn:hover { background: #7C1B2B; color: #FAF8F3; }
-        .details-btn-primary { background: #7C1B2B; color: #FAF8F3; }
-        .details-btn-primary:hover { background: #5A1120; }
+        .ev-frame::before {
+          content: '';
+          position: absolute; inset: 6px;
+          border: 1px solid #C9A96E; opacity: .35;
+          pointer-events: none; z-index: 2;
+        }
+        .ev-img {
+          width: 100%; height: 100%;
+          object-fit: cover; display: block;
+        }
+        .ev-placeholder {
+          width: 100%; height: 100%;
+          display: flex; align-items: center; justify-content: center;
+          background: linear-gradient(135deg, #F0E9DC, #E4D8C6);
+          font-family: 'Noto Serif SC', 'Songti SC', serif;
+          font-weight: 700;
+          font-size: clamp(5rem, 12vw, 8rem);
+          color: #7C1B2B;
+          opacity: .6;
+        }
+
+        .ev-info {
+          text-align: left;
+        }
+        @media (max-width: 720px) {
+          .ev-info { text-align: center; }
+        }
+        .ev-eyebrow {
+          display: block;
+          font-family: 'Montserrat', sans-serif;
+          font-size: .68rem;
+          letter-spacing: .38em;
+          text-transform: uppercase;
+          color: #C9A96E;
+          margin-bottom: .65rem;
+        }
+        .ev-title {
+          font-family: 'Great Vibes', cursive;
+          font-size: clamp(2.2rem, 5.5vw, 3rem);
+          color: #7C1B2B;
+          line-height: 1;
+          margin: 0 0 1.5rem;
+        }
+        .ev-date {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 300;
+          font-size: clamp(2.6rem, 8vw, 4.5rem);
+          color: #7C1B2B;
+          line-height: 1;
+          letter-spacing: -.01em;
+          margin: 0 0 .6rem;
+        }
+        .ev-weekday {
+          display: block;
+          font-family: 'Montserrat', sans-serif;
+          font-size: .7rem;
+          letter-spacing: .35em;
+          text-transform: uppercase;
+          color: #7A5555;
+          margin-bottom: .35rem;
+        }
+        .ev-time {
+          font-family: 'Cormorant Garamond', serif;
+          font-style: italic;
+          font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+          color: #231010;
+          margin: 0 0 1.5rem;
+        }
+        .ev-time strong {
+          font-weight: 600;
+          color: #7C1B2B;
+          font-style: normal;
+        }
+        .ev-divider {
+          width: 80px; height: 1px;
+          background: #C9A96E; opacity: .55;
+          margin: 1.5rem 0;
+        }
+        @media (max-width: 720px) {
+          .ev-divider { margin: 1.5rem auto; }
+        }
+        .ev-ceremony {
+          display: grid;
+          gap: .9rem;
+        }
+        .ev-ev {
+          font-family: 'Cormorant Garamond', serif;
+          color: #231010;
+        }
+        .ev-ev-label {
+          display: block;
+          font-family: 'Montserrat', sans-serif;
+          font-size: .62rem;
+          letter-spacing: .3em;
+          text-transform: uppercase;
+          color: #C9A96E;
+          margin-bottom: .25rem;
+        }
+        .ev-ev-line {
+          font-size: clamp(.95rem, 1.9vw, 1.05rem);
+          line-height: 1.6;
+          margin: 0;
+        }
+        .ev-ev-line strong {
+          font-weight: 600;
+          color: #7C1B2B;
+        }
       `}</style>
 
-      <section className="details">
-        <h2 className="details-title">Thông tin buổi lễ</h2>
-        {items.map(({ icon, label, value }) => (
-          <div key={label} className="details-card">
-            <span className="details-icon">{icon}</span>
-            <div>
-              <p className="details-label">{label}</p>
-              <p className="details-value">{value}</p>
-              {label === 'Địa điểm' && config?.venue_address && (
-                <p className="details-address">{config.venue_address}</p>
+      <section className="ev-sec" aria-label="Chi tiết lễ cưới">
+        <div className="ev-inner">
+          <div className="ev-frame">
+            {heroPhoto ? (
+              <img src={heroPhoto} alt="" className="ev-img" loading="lazy" />
+            ) : (
+              <div className="ev-placeholder">囍</div>
+            )}
+          </div>
+
+          <div className="ev-info">
+            <span className="ev-eyebrow">Save the Date</span>
+            <h2 className="ev-title">Hôn lễ</h2>
+
+            <p className="ev-date">{dd}.{mm}.{yyyy}</p>
+            <span className="ev-weekday">{weekday}</span>
+            <p className="ev-time">Vào lúc <strong>{time}</strong></p>
+
+            <div className="ev-divider" />
+
+            <div className="ev-ceremony">
+              <div className="ev-ev">
+                <span className="ev-ev-label">Lễ Vu Quy / Thành Hôn</span>
+                <p className="ev-ev-line">
+                  <strong>09:00</strong> · Chủ Nhật · Tư gia
+                </p>
+              </div>
+              <div className="ev-ev">
+                <span className="ev-ev-label">Tiệc cưới</span>
+                <p className="ev-ev-line">
+                  <strong>{time}</strong> · {weekday}
+                </p>
+                <p className="ev-ev-line" style={{ fontStyle: 'italic', color: '#5C3535' }}>
+                  {config?.venue_name ?? 'Nhà hàng Full House'}
+                </p>
+              </div>
+              {config?.dresscode && (
+                <div className="ev-ev">
+                  <span className="ev-ev-label">Dresscode</span>
+                  <p className="ev-ev-line" style={{ fontStyle: 'italic' }}>{config.dresscode}</p>
+                </div>
               )}
             </div>
           </div>
-        ))}
-
-        <div className="details-actions">
-          <a className="details-btn details-btn-primary" href="/api/calendar.ics" download="wedding.ics">
-            📅 Lưu vào lịch
-          </a>
-          {config?.maps_url && (
-            <a className="details-btn" href={config.maps_url} target="_blank" rel="noopener noreferrer">
-              📍 Chỉ đường
-            </a>
-          )}
         </div>
       </section>
     </>

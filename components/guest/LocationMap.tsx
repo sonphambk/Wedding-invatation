@@ -4,14 +4,7 @@ interface Props { config: WeddingConfig | null }
 
 function toEmbedSrc(savedUrl: string | null | undefined, address: string | null | undefined): string {
   const url = (savedUrl || '').trim()
-  // Already an embed iframe URL — use as-is
-  if (url && (url.includes('/maps/embed') || url.includes('output=embed'))) {
-    return url
-  }
-  // Anything else (short link maps.app.goo.gl, share link, place URL, empty) →
-  // build a working iframe-embeddable URL from the address. The classic
-  // `maps.google.com/maps?q=...&output=embed` endpoint works without an API key
-  // and is iframe-friendly (no X-Frame-Options block).
+  if (url && (url.includes('/maps/embed') || url.includes('output=embed'))) return url
   const q = (address || '').trim() || 'Quận 1, TP.HCM'
   return `https://www.google.com/maps?q=${encodeURIComponent(q)}&hl=vi&z=16&output=embed`
 }
@@ -26,50 +19,26 @@ export default function LocationMap({ config }: Props) {
   return (
     <>
       <style>{`
-        .loc {
-          padding: clamp(3rem, 7vw, 5rem) 1.5rem;
+        .loc-sec {
+          padding: clamp(3rem, 7vw, 5rem) clamp(1.25rem, 4vw, 2rem);
           background: #F0E9DC;
         }
-        .loc-inner { max-width: 640px; margin: 0 auto; text-align: center; }
-        .loc-eyebrow {
-          display: block;
-          font-family: 'Montserrat', sans-serif;
-          font-size: .68rem; letter-spacing: .38em;
-          text-transform: uppercase; color: #C9A96E;
-          margin-bottom: .75rem;
+        .loc-inner {
+          max-width: 1040px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: clamp(2rem, 5vw, 4rem);
+          align-items: center;
         }
-        .loc-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.8rem, 4.5vw, 2.8rem);
-          color: #7C1B2B; font-weight: 400;
-          margin: 0 0 1.25rem;
+        @media (max-width: 720px) {
+          .loc-inner { grid-template-columns: 1fr; }
         }
-        .loc-orn {
-          display: flex; align-items: center; justify-content: center;
-          gap: 1rem; margin: 1.25rem auto 2rem;
-        }
-        .loc-orn-line { flex: 1; max-width: 80px; height: 1px; background: #C9A96E; opacity: .6; }
-        .loc-orn-dot {
-          width: 6px; height: 6px; background: #C9A96E;
-          transform: rotate(45deg);
-        }
-        .loc-venue {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-          font-weight: 500; color: #231010;
-          margin: 0 0 .5rem; letter-spacing: .02em;
-        }
-        .loc-address {
-          font-family: 'Cormorant Garamond', serif;
-          font-style: italic;
-          font-size: clamp(.9rem, 1.6vw, 1.05rem);
-          color: #5C3535; line-height: 1.7;
-          margin: 0 0 2rem;
-        }
+
         .loc-frame {
           position: relative;
           background: #FAF8F3;
-          padding: 14px;
+          padding: 12px;
           border: 1px solid #E4D8C6;
           box-shadow: 0 18px 40px -25px rgba(124,27,43,.3);
         }
@@ -79,19 +48,60 @@ export default function LocationMap({ config }: Props) {
           pointer-events: none; z-index: 2;
         }
         .loc-map {
-          width: 100%; height: clamp(220px, 40vw, 340px);
+          width: 100%;
+          height: clamp(260px, 38vw, 380px);
           border: none; display: block;
           filter: saturate(.9) contrast(.95);
         }
+
+        .loc-info { text-align: left; }
+        @media (max-width: 720px) {
+          .loc-info { text-align: center; }
+        }
+
+        .loc-eyebrow {
+          display: block;
+          font-family: 'Montserrat', sans-serif;
+          font-size: .68rem; letter-spacing: .38em;
+          text-transform: uppercase; color: #C9A96E;
+          margin-bottom: .65rem;
+        }
+        .loc-title {
+          font-family: 'Great Vibes', cursive;
+          font-size: clamp(2.2rem, 5.5vw, 3rem);
+          color: #7C1B2B;
+          line-height: 1;
+          margin: 0 0 1.5rem;
+        }
+        .loc-venue {
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 600;
+          font-size: clamp(1.2rem, 2.6vw, 1.45rem);
+          color: #231010;
+          margin: 0 0 .55rem;
+          letter-spacing: .02em;
+          text-transform: uppercase;
+        }
+        .loc-address {
+          font-family: 'Cormorant Garamond', serif;
+          font-style: italic;
+          font-size: clamp(.95rem, 1.8vw, 1.05rem);
+          color: #5C3535;
+          line-height: 1.7;
+          margin: 0 0 1.5rem;
+        }
         .loc-actions {
           display: flex; flex-wrap: wrap; gap: .75rem;
-          justify-content: center; margin-top: 2rem;
+          margin-top: 1.5rem;
+        }
+        @media (max-width: 720px) {
+          .loc-actions { justify-content: center; }
         }
         .loc-btn {
           display: inline-flex; align-items: center; gap: .5rem;
           padding: .85rem 1.6rem;
           font-family: 'Montserrat', sans-serif;
-          font-size: .7rem; letter-spacing: .25em; text-transform: uppercase;
+          font-size: .68rem; letter-spacing: .25em; text-transform: uppercase;
           text-decoration: none; cursor: pointer;
           transition: background .25s, color .25s;
         }
@@ -107,24 +117,8 @@ export default function LocationMap({ config }: Props) {
         .loc-btn-secondary:hover { background: #7C1B2B; color: #FAF8F3; }
       `}</style>
 
-      <section className="loc">
+      <section className="loc-sec" aria-label="Địa điểm">
         <div className="loc-inner">
-          <span className="loc-eyebrow">Địa điểm</span>
-          <h2 className="loc-title">Nơi diễn ra buổi lễ</h2>
-
-          <div className="loc-orn">
-            <span className="loc-orn-line" />
-            <span className="loc-orn-dot" />
-            <span className="loc-orn-line" />
-          </div>
-
-          <p className="loc-venue">
-            {config?.venue_name ?? 'Trung Tâm Tiệc Cưới Ánh Dương'}
-          </p>
-          <p className="loc-address">
-            {config?.venue_address ?? 'Quận 1, TP.HCM'}
-          </p>
-
           <div className="loc-frame">
             <iframe
               src={mapsUrl}
@@ -135,14 +129,21 @@ export default function LocationMap({ config }: Props) {
               allowFullScreen
             />
           </div>
-
-          <div className="loc-actions">
-            <a href={navUrl} target="_blank" rel="noopener noreferrer" className="loc-btn loc-btn-primary">
-              Mở chỉ đường
-            </a>
-            <a href="/api/calendar.ics" download="wedding.ics" className="loc-btn loc-btn-secondary">
-              Lưu vào lịch
-            </a>
+          <div className="loc-info">
+            <span className="loc-eyebrow">Địa điểm tổ chức</span>
+            <h2 className="loc-title">Nơi diễn ra</h2>
+            <p className="loc-venue">{config?.venue_name ?? 'Nhà hàng Full House'}</p>
+            <p className="loc-address">
+              {config?.venue_address ?? '64 Trần Phú, Phường Quảng Trị, Tỉnh Quảng Trị'}
+            </p>
+            <div className="loc-actions">
+              <a href={navUrl} target="_blank" rel="noopener noreferrer" className="loc-btn loc-btn-primary">
+                Xem chỉ đường
+              </a>
+              <a href="/api/calendar.ics" download="wedding.ics" className="loc-btn loc-btn-secondary">
+                Lưu vào lịch
+              </a>
+            </div>
           </div>
         </div>
       </section>
