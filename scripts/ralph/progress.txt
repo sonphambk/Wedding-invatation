@@ -1,0 +1,79 @@
+# Ralph Progress Log — Wedding Invite App
+# Each iteration appends learnings here.
+# Stack: Next.js 14 App Router + TypeScript + Supabase + Vercel
+# Design: cream #FAF8F3, burgundy #7C1B2B, gold #C9A96E, dark #231010
+# Fonts: Cormorant Garamond (display), Great Vibes (script), Montserrat (body)
+# NOTE: Supabase tables/storage must be set up manually before running API-dependent stories.
+# NOTE: Set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, ADMIN_PASSWORD in .env.local
+# Full plan: docs/superpowers/plans/2026-05-11-wedding-invite-app.md
+
+## Codebase Patterns
+- Tailwind v4 is installed (no tailwind.config.ts — uses CSS @theme in globals.css)
+- create-next-app copied via temp dir due to existing docs/ scripts/ conflict; branch renamed to ralph/wedding-invite-app
+- TypeScript .bin/tsc symlink may be broken after npm installs — fix: `rm node_modules/.bin/tsc && ln -s ../typescript/bin/tsc node_modules/.bin/tsc`
+
+## 2026-05-12 - US-007
+- Created app/api/config/route.ts: GET returns wedding_config row id=1 (404 if missing); PATCH validates admin_session cookie, whitelists fields, updates row via service client
+- Files changed: app/api/config/route.ts
+---
+
+## 2026-05-12 - US-006
+- Created app/admin/login/page.tsx: client component with password form, POST /api/admin/login, redirects to /admin on success, shows 'Sai mật khẩu' on failure
+- Styled with bg-cream, white card, burg button, font-display/font-body Tailwind classes
+- Files changed: app/admin/login/page.tsx
+- **Learnings for future iterations:**
+  - No browser testing available; manual verification needed
+---
+
+## 2026-05-12 - US-005
+- Created middleware.ts: guards /admin/* (except /admin/login), checks admin_session cookie against ADMIN_PASSWORD, redirects to /admin/login if missing/wrong
+- Created app/api/admin/login/route.ts: POST validates password, sets httpOnly cookie 7-day maxAge
+- Created app/api/admin/logout/route.ts: POST deletes cookie, redirects to /admin/login
+- Files changed: middleware.ts, app/api/admin/login/route.ts, app/api/admin/logout/route.ts
+- **Learnings for future iterations:**
+  - Middleware matcher '/admin/:path*' does NOT match /admin itself — add '/admin' to matcher if needed
+  - Logout redirect uses NEXT_PUBLIC_SITE_URL env var with localhost:3000 fallback
+---
+
+## 2026-05-12 - US-004
+- Created lib/types.ts: PhotoEntry, WeddingConfig, Wish, PublicConfig, PublicWish
+- Created lib/supabase/client.ts: createClient() using createBrowserClient
+- Created lib/supabase/server.ts: createServerAnonClient() and createServiceClient() using createServerClient with async cookies()
+- Created lib/vietqr.ts: VN_BANKS record (10 banks) and vietqrUrl() helper
+- Files changed: lib/types.ts, lib/supabase/client.ts, lib/supabase/server.ts, lib/vietqr.ts
+- **Learnings for future iterations:**
+  - @supabase/ssr createServerClient requires cookies getAll/setAll pattern; cookies() from next/headers is async in Next.js 15
+  - lib/supabase/client.ts needs 'use client' directive at top
+---
+
+## 2026-05-12 - US-003
+- Created supabase/migrations/001_init.sql: wedding_config table (single row id=1, all columns), seed row, updated_at trigger; wishes table (uuid PK, guest_name, message, likes, approved, created_at)
+- Created supabase/migrations/002_rls.sql: RLS enabled on both tables; public read on wedding_config; public read approved-only on wishes; public insert on wishes
+- Files changed: supabase/migrations/001_init.sql, supabase/migrations/002_rls.sql
+- **Learnings for future iterations:**
+  - These SQL files are run manually in Supabase dashboard — not auto-applied
+  - Storage buckets (wedding-photos, wedding-music) must also be created manually as public buckets
+---
+
+## 2026-05-12 - US-002
+- Configured Tailwind v4 design tokens via CSS @theme in globals.css (colors: cream/burg/gold/dark/mid/soft palette, fonts: display/script/body)
+- Added :root CSS variables for all colors, .phone class (max-width:430px, centered, border-radius:40px on desktop)
+- Updated layout.tsx: removed Geist fonts, added Google Fonts CDN link (Cormorant Garamond, Great Vibes, Montserrat), applied font-body to body
+- Created .env.example with placeholder keys; .env.local excluded by .gitignore .env* pattern
+- Files changed: app/globals.css, app/layout.tsx, .env.example
+- **Learnings for future iterations:**
+  - Tailwind v4: no tailwind.config.ts — use @theme in CSS; color names like bg-cream/text-burg work directly
+  - .env.example must be force-added (`git add -f`) because .gitignore has `.env*`
+  - .env.local is NOT committed (covered by .env* in .gitignore) — correct behavior
+---
+
+## 2026-05-12 - US-001
+- Scaffolded Next.js 14 App Router with TypeScript, Tailwind v4, @supabase/supabase-js, @supabase/ssr, @dnd-kit/{core,sortable,utilities}
+- Used temp dir workaround: scaffolded to /tmp/wedding-temp, copied to wedding-invite-app (existing docs/scripts caused create-next-app conflict)
+- Renamed branch from main to ralph/wedding-invite-app after copy overwrote our git init
+- Files changed: package.json, package-lock.json (all scaffold files from create-next-app initial commit)
+- **Learnings for future iterations:**
+  - Tailwind v4 has no tailwind.config.ts — design tokens go in globals.css via @theme directive
+  - next-env.d.ts is in .gitignore by default (correct, auto-generated)
+  - tsc binary symlink can break after repeated npm installs — check if needed
+---

@@ -1,0 +1,418 @@
+{
+  "project": "WeddingInviteApp",
+  "branchName": "ralph/wedding-invite-app",
+  "description": "Vietnamese wedding invitation web app — Next.js 14 + Supabase. Admin uploads details/photos/music; guests view animated invitation with countdown, album, QR payment, and live wishes wall.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Scaffold Next.js 14 project with dependencies",
+      "description": "As a developer, I need the base project scaffolded with Next.js 14 App Router, TypeScript, Tailwind, and all required dependencies so the team can build on a solid foundation.",
+      "acceptanceCriteria": [
+        "Run: npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias '@/*' (in /Users/admin/Desktop/wedding-invite-app, accept all defaults)",
+        "Run: npm install @supabase/supabase-js @supabase/ssr",
+        "Run: npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities",
+        "package.json contains all three dependency groups",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Working directory is /Users/admin/Desktop/wedding-invite-app which already has docs/ and scripts/ — create-next-app should scaffold INTO this directory, accepting overwrite prompts."
+    },
+    {
+      "id": "US-002",
+      "title": "Configure Tailwind design tokens and global CSS",
+      "description": "As a developer, I need the wedding design system (cream/burgundy/gold palette, Cormorant Garamond/Great Vibes/Montserrat fonts) wired into Tailwind and CSS variables so all components can use consistent styles.",
+      "acceptanceCriteria": [
+        "tailwind.config.ts extends colors with: cream=#FAF8F3, cream-2=#F0E9DC, cream-3=#E4D8C6, burg=#7C1B2B, burg-2=#9B2F3F, burg-3=#5A1120, gold=#C9A96E, gold-2=#D8BC8A, dark=#231010, mid=#5C3535, soft=#7A5555",
+        "tailwind.config.ts extends fontFamily with: display=['Cormorant Garamond',serif], script=['Great Vibes',cursive], body=['Montserrat',sans-serif]",
+        "app/globals.css defines :root CSS variables for all colors and includes .phone class (max-width:430px, centered, border-radius:40px on desktop @media min-width:500px)",
+        "app/layout.tsx loads Google Fonts CDN link for Cormorant Garamond, Great Vibes, Montserrat and applies font-body to body",
+        ".env.local created with placeholder values for NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, ADMIN_PASSWORD, NEXT_PUBLIC_SITE_URL",
+        ".env.example created with same keys but empty values",
+        ".gitignore includes .env.local",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create Supabase SQL migration files",
+      "description": "As a developer, I need the SQL migrations for wedding_config and wishes tables (with RLS policies) saved in the repo so they can be run in the Supabase dashboard.",
+      "acceptanceCriteria": [
+        "supabase/migrations/001_init.sql creates wedding_config table with all columns from spec (id int4 PK default 1, bride_name, groom_name, wedding_date timestamptz, venue_name, venue_address, maps_url, dresscode, extra_notes, bank1_code, bank1_account, bank1_holder, bank2_code, bank2_account, bank2_holder, music_url, photos jsonb default '[]', updated_at) plus seed row and updated_at trigger",
+        "supabase/migrations/001_init.sql creates wishes table (id uuid PK gen_random_uuid(), guest_name, message, likes int4 default 0, approved boolean default false, created_at timestamptz default now())",
+        "supabase/migrations/002_rls.sql enables RLS on both tables and creates: public read policy on wedding_config, public read-approved-only on wishes, public insert on wishes",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "These files are created for the user to run manually in Supabase dashboard. The storage buckets (wedding-photos, wedding-music) must also be created manually as public buckets."
+    },
+    {
+      "id": "US-004",
+      "title": "Create shared types, Supabase clients, and VietQR helper",
+      "description": "As a developer, I need the shared TypeScript types, browser/server Supabase clients, and VietQR URL helper so all components have consistent types and data access patterns.",
+      "acceptanceCriteria": [
+        "lib/types.ts exports: PhotoEntry {url,sort_order}, WeddingConfig (all DB columns), Wish (all DB columns), PublicConfig = Omit<WeddingConfig,'updated_at'>, PublicWish = Pick<Wish,'id'|'guest_name'|'message'|'likes'|'created_at'>",
+        "lib/supabase/client.ts exports createClient() using createBrowserClient from @supabase/ssr",
+        "lib/supabase/server.ts exports createServerAnonClient() and createServiceClient() using createServerClient from @supabase/ssr with cookies() from next/headers",
+        "lib/vietqr.ts exports VN_BANKS record (at least: VCB, TCB, ACB, MB, VPB, TPB, STB, BIDV, CTG, VIB) and vietqrUrl(bankCode,accountNumber) returning https://img.vietqr.io/image/{bankCode}-{accountNumber}-qr_only.jpg",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Add admin auth middleware and login/logout API routes",
+      "description": "As an admin, I need password-gated access to /admin routes so only I can manage the wedding invitation.",
+      "acceptanceCriteria": [
+        "middleware.ts guards all /admin/* routes (except /admin/login) by checking cookie 'admin_session' against ADMIN_PASSWORD env var; redirects to /admin/login if missing or wrong",
+        "app/api/admin/login/route.ts POST accepts {password}, validates against ADMIN_PASSWORD, sets httpOnly cookie 'admin_session' with 7-day maxAge, returns {ok:true} or 401",
+        "app/api/admin/logout/route.ts POST deletes 'admin_session' cookie and redirects to /admin/login",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Build admin login page UI",
+      "description": "As an admin, I need a clean login page where I enter my password to access the admin panel.",
+      "acceptanceCriteria": [
+        "app/admin/login/page.tsx renders a centered card with title 'Quản lý thiệp cưới', password input, submit button, error display",
+        "On correct password: redirects to /admin",
+        "On wrong password: shows Vietnamese error message 'Sai mật khẩu'",
+        "Styled with bg-cream, burg button, font-display/font-body Tailwind classes",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Add config API routes (GET public, PATCH admin-only)",
+      "description": "As a developer, I need GET /api/config to return public wedding config and PATCH /api/config (admin-only) to update it.",
+      "acceptanceCriteria": [
+        "app/api/config/route.ts GET fetches wedding_config row id=1 from Supabase and returns it as JSON; returns 404 if not found",
+        "app/api/config/route.ts PATCH validates admin_session cookie, whitelists allowed fields (bride_name, groom_name, wedding_date, venue_name, venue_address, maps_url, dresscode, extra_notes, bank1_code, bank1_account, bank1_holder, bank2_code, bank2_account, bank2_holder, music_url, photos), updates row, returns updated data",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Add wishes API routes",
+      "description": "As a developer, I need CRUD API routes for wishes: guests can submit, admins can moderate, anyone can like.",
+      "acceptanceCriteria": [
+        "app/api/wishes/route.ts GET returns approved wishes ordered by created_at desc (id, guest_name, message, likes, created_at only)",
+        "app/api/wishes/route.ts POST validates guest_name (required, max 100 chars) and message (required, max 500 chars), inserts with approved=false, returns 201",
+        "app/api/wishes/[id]/route.ts PATCH handles two cases: {like:true} increments likes column (no auth), or {approved:bool} toggles approval (admin cookie required)",
+        "app/api/wishes/[id]/route.ts DELETE requires admin cookie, deletes the wish",
+        "app/api/admin/wishes/route.ts GET requires admin cookie, returns ALL wishes (including unapproved) ordered by created_at desc",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Add photo and music upload API routes",
+      "description": "As an admin, I need API routes to upload photos to Supabase Storage (wedding-photos bucket) and MP3 to wedding-music bucket.",
+      "acceptanceCriteria": [
+        "app/api/upload/photos/route.ts POST requires admin cookie, accepts multipart file (JPG/PNG/WEBP, max 10MB), uploads to wedding-photos bucket with timestamp filename, returns {url: publicUrl}",
+        "app/api/upload/music/route.ts POST requires admin cookie, accepts MP3 (max 20MB), uploads as bgm.mp3 (upsert:true) to wedding-music bucket, updates wedding_config music_url, returns {url: publicUrl}",
+        "Both routes return 401 if not admin, 400 if wrong file type or too large",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Build guest page shell and GuestInvitation wrapper",
+      "description": "As a guest, I need the main invitation page to fetch config server-side and render all invitation sections after the envelope animation.",
+      "acceptanceCriteria": [
+        "app/page.tsx is an async server component that fetches /api/config with 60s revalidation, passes config to child components",
+        "app/page.tsx renders <div className='phone'> containing <EnvelopeIntro> and <GuestInvitation config={config}>",
+        "components/guest/GuestInvitation.tsx is a 'use client' wrapper that renders HeroCard, MusicPlayer (if music_url), CountdownTimer, EventDetails, PhotoAlbum (if photos.length>0), LocationMap, BankQR (if bank1_account or bank2_account), WishesWall, and footer",
+        "GuestInvitation div has id='main-content' and starts with display:none (revealed by EnvelopeIntro)",
+        "Footer shows couple names in font-script, date, 'Made with ♥'",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Stub out all imported components as empty functional components first if they don't exist yet, to avoid import errors."
+    },
+    {
+      "id": "US-011",
+      "title": "Build EnvelopeIntro component",
+      "description": "As a guest, I want to see an animated envelope with a 囍 wax seal that I tap to open the invitation.",
+      "acceptanceCriteria": [
+        "components/guest/EnvelopeIntro.tsx renders a fixed full-screen overlay (#envelope) with cream background",
+        "Contains animated 囍 seal (gold circle, pulse animation), couple names in Great Vibes script font, 'Chạm để mở thiệp' tap instruction",
+        "6 floating petal elements with CSS keyframe animation (petalFall)",
+        "Clicking/tapping the envelope adds 'opening' class (envelopeExit CSS animation, 0.8s), then hides envelope, shows #main-content, dispatches 'envelope-opened' CustomEvent on window",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Build HeroCard component",
+      "description": "As a guest, I want to see an elegant hero section with the couple's names, wedding date, and a 囍 watermark in the cream/burgundy/gold color palette.",
+      "acceptanceCriteria": [
+        "components/guest/HeroCard.tsx renders a full-viewport section (.hero) with cream background",
+        "Shows 囍 as large faint watermark (position:absolute, opacity:.05, font-size:18rem)",
+        "'Trân trọng kính mời' label in Montserrat uppercase tracking-wide",
+        "Groom name and bride name in Great Vibes 3.5rem gold/dark, separated by '&' in Cormorant Garamond italic",
+        "Wedding date formatted in Vietnamese (Thứ Bảy, 13.12.2025 style) in Cormorant Garamond",
+        "Diamond divider lines (gold horizontal rules with diamond accent) between sections",
+        "Formal Vietnamese invitation text in italic Cormorant Garamond",
+        "Falls back gracefully when config is null",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Build CountdownTimer component",
+      "description": "As a guest, I want to see a live countdown to the wedding date with days, hours, minutes, and seconds.",
+      "acceptanceCriteria": [
+        "components/guest/CountdownTimer.tsx renders a burgundy section with 4 time blocks (Ngày/Giờ/Phút/Giây)",
+        "Uses setInterval(tick, 1000) to update every second using useState/useEffect",
+        "Numbers in Cormorant Garamond 2.5rem cream color, labels in Montserrat uppercase",
+        "Countdown shows 00 for each unit when wedding date has passed (Math.max(0, diff))",
+        "weddingDate prop is ISO string, parsed with new Date()",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Build MusicPlayer component",
+      "description": "As a guest, I want background music to play automatically when I open the envelope, with a floating button to toggle it.",
+      "acceptanceCriteria": [
+        "components/guest/MusicPlayer.tsx renders a fixed bottom-right floating button (48px circle, burgundy, high z-index)",
+        "Uses useRef for HTMLAudioElement with loop preload='none'",
+        "Listens for 'envelope-opened' window event to trigger audio.play()",
+        "Button shows ripple/pulse animation when playing",
+        "Shows 'Nhạc nền đám cưới' label for 3s after music starts, then hides",
+        "Toggle button: pause if playing, play if paused",
+        "musicUrl prop wires the audio src",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Build EventDetails component",
+      "description": "As a guest, I want to see the wedding date, time, venue, and dress code clearly displayed as detail cards.",
+      "acceptanceCriteria": [
+        "components/guest/EventDetails.tsx renders a cream-2 section with cards for: Ngày cưới (formatted date), Thời gian (HH:MM SA), Địa điểm (venue name + address below), and Trang phục if config.dresscode is set",
+        "Each card has emoji icon, Montserrat uppercase label, Cormorant Garamond value",
+        "Falls back to hardcoded defaults when config is null",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Build LocationMap component",
+      "description": "As a guest, I want to see the venue on a map with a navigation button to get directions.",
+      "acceptanceCriteria": [
+        "components/guest/LocationMap.tsx renders venue name, address, an embedded Google Maps iframe (200px tall, border-radius:12px), and a 'Chỉ đường' button",
+        "Maps iframe src uses config.maps_url if set, otherwise a default embed URL",
+        "'Chỉ đường' button links to maps.google.com with venue address query, opens in new tab",
+        "Styled with cream background, burgundy button",
+        "Falls back gracefully when config is null",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Build BankQR component",
+      "description": "As a guest, I want to see a QR code for bank transfer (mừng cưới) for each configured bank account.",
+      "acceptanceCriteria": [
+        "components/guest/BankQR.tsx renders a 'Mừng cưới' section with a BankCard sub-component for each configured bank account",
+        "BankCard shows bank name (from VN_BANKS lookup), QR image (vietqrUrl() from lib/vietqr.ts), account number, account holder name",
+        "QR image uses next/image with onerror fallback hiding the image if VietQR URL fails",
+        "Shows bank2 card only if config.bank2_account is set",
+        "next.config.ts (or next.config.js) remotePatterns includes *.supabase.co storage paths AND img.vietqr.io",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Build PhotoAlbum swipeable carousel",
+      "description": "As a guest, I want to swipe through wedding photos in a smooth horizontal carousel that auto-advances.",
+      "acceptanceCriteria": [
+        "components/guest/PhotoAlbum.tsx renders a dark-background section with a horizontal scroll container using CSS scroll-snap-type:x mandatory and -webkit-overflow-scrolling:touch",
+        "Photos sorted by sort_order, rendered as Next.js Image (fill, objectFit:cover) in scroll-snap slides",
+        "Dot indicators update as user scrolls; counter shows 'N / Total'",
+        "Auto-advances every 4s using setInterval, pauses when user is touching (touchstart/touchend refs)",
+        "scrollbar-width:none hides the scrollbar",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Build WishForm component",
+      "description": "As a guest, I want to submit my name and a wish message to the couple.",
+      "acceptanceCriteria": [
+        "components/guest/WishForm.tsx renders a form with guest_name input (required, max 100) and message textarea (required, max 500)",
+        "POST to /api/wishes on submit; shows loading state during request",
+        "On success: shows '♥ Cảm ơn lời chúc của bạn!' confirmation with note about moderation and 'Gửi lời chúc khác' reset button",
+        "On error: shows Vietnamese error message inline",
+        "Styled with cream background inputs, cream-3 border, burg focus ring, burg submit button",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Build WishesWall with Supabase Realtime",
+      "description": "As a guest, I want to see all approved wishes update in real-time, and like my favorite ones.",
+      "acceptanceCriteria": [
+        "components/guest/WishesWall.tsx fetches approved wishes from GET /api/wishes on mount",
+        "Subscribes to Supabase Realtime postgres_changes on 'wishes' table (approved=eq.true filter) for INSERT/UPDATE/DELETE events",
+        "Falls back to polling every 30s if Realtime fails",
+        "Each wish card shows: guest_name, message, formatted Vietnamese date, like button (🤍/❤️) with count",
+        "Like action: PATCH /api/wishes/{id} with {like:true}, optimistic UI update, deduplicates via localStorage 'liked_wishes' key",
+        "Renders WishForm above the wish cards",
+        "Shows empty state: 'Chưa có lời chúc nào. Hãy là người đầu tiên!'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-021",
+      "title": "Build admin dashboard shell with tab navigation",
+      "description": "As an admin, I need a tabbed dashboard with a sticky header showing 'Thông tin / Ảnh / Lời chúc' tabs.",
+      "acceptanceCriteria": [
+        "components/admin/AdminShell.tsx is a 'use client' component with useState for active tab (config/photos/wishes)",
+        "Sticky burgundy header shows 'Quản lý thiệp cưới' title, couple names subtitle, and 'Đăng xuất' button",
+        "Logout calls POST /api/admin/logout then redirects to /admin/login",
+        "Tab bar below header with 3 tabs; active tab has burg border-bottom and burg text color",
+        "Renders ConfigForm, PhotoManager, or WishesManager based on active tab",
+        "app/admin/page.tsx renders <AdminShell />",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-022",
+      "title": "Build admin ConfigForm",
+      "description": "As an admin, I need a form to edit all wedding details, bank accounts, and upload music.",
+      "acceptanceCriteria": [
+        "components/admin/ConfigForm.tsx fetches config on mount from GET /api/config",
+        "Form sections: bride/groom names + wedding datetime-local, venue name/address/maps URL, dresscode/notes, bank1 (dropdown + account + holder), bank2 (same, optional), music upload",
+        "Bank dropdown uses VN_BANKS from lib/vietqr.ts",
+        "If music file selected: POST to /api/upload/music first, then include returned URL in PATCH",
+        "PATCH /api/config on save; shows '✓ Đã lưu!' on success",
+        "Styled with white rounded-xl cards per section, bg-cream page, burg save button",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-023",
+      "title": "Build admin PhotoManager with drag-and-drop reorder",
+      "description": "As an admin, I need to upload photos, see thumbnails, drag to reorder them, and delete individual photos.",
+      "acceptanceCriteria": [
+        "components/admin/PhotoManager.tsx fetches config.photos on mount",
+        "File input (accept image/jpeg,image/png,image/webp, multiple) uploads each file to POST /api/upload/photos and appends returned URLs to photos state",
+        "Thumbnail grid uses @dnd-kit/core DndContext + @dnd-kit/sortable SortableContext with rectSortingStrategy",
+        "Each photo uses useSortable hook; drag updates array order via arrayMove from @dnd-kit/sortable",
+        "Delete button (✕) per photo removes it from state",
+        "When photos are changed (reordered/deleted/added), show 'Lưu thứ tự ảnh' button that PATCHes /api/config with updated photos array",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-024",
+      "title": "Build admin WishesManager with moderation",
+      "description": "As an admin, I need to see all wishes (including unapproved), approve/reject them, and delete them.",
+      "acceptanceCriteria": [
+        "components/admin/WishesManager.tsx fetches ALL wishes from GET /api/admin/wishes on mount",
+        "Filter buttons: 'Chờ duyệt (N)' / 'Đã duyệt' / 'Tất cả' where N is count of unapproved",
+        "Each wish card shows: guest_name, formatted Vietnamese datetime, message, like count, '✓ Duyệt'/'✓ Đã duyệt' toggle button, '🗑 Xoá' delete button",
+        "Approve toggle: PATCH /api/wishes/{id} with {approved:!current}, updates local state",
+        "Delete: confirm() dialog, then DELETE /api/wishes/{id}, removes from local state",
+        "Subscribes to Supabase Realtime on 'wishes' table; reloads on any change",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-025",
+      "title": "Final build verification and git init",
+      "description": "As a developer, I need the project to compile cleanly with no TypeScript errors and all files committed.",
+      "acceptanceCriteria": [
+        "npm run build completes with 0 errors",
+        "No TypeScript errors from npx tsc --noEmit",
+        "All source files committed (git add -A && git commit)",
+        "Typecheck passes"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": "If Supabase env vars are not set, the build may fail on API routes that import from lib/supabase/server.ts. In that case, ensure .env.local has placeholder values so the module resolves. The app will error at runtime but should build."
+    }
+  ]
+}
