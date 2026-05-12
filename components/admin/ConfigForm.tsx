@@ -22,6 +22,7 @@ export default function ConfigForm() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [musicFile, setMusicFile] = useState<File | null>(null)
+  const [errorMsg, setErrorMsg] = useState<string>('')
 
   useEffect(() => {
     fetch('/api/config').then((r) => r.json()).then((d) => { setConfig(d); setLoading(false) })
@@ -35,14 +36,20 @@ export default function ConfigForm() {
   async function handleSave(e: FormEvent) {
     e.preventDefault()
     setSaving(true)
+    setErrorMsg('')
 
     if (musicFile) {
       const fd = new FormData()
       fd.append('file', musicFile)
       const res = await fetch('/api/upload/music', { method: 'POST', body: fd })
-      if (res.ok) {
-        const { url } = await res.json()
-        config.music_url = url
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data.url) {
+        config.music_url = data.url
+        setMusicFile(null)
+      } else {
+        setErrorMsg(`Upload nhạc thất bại: ${data.error || res.statusText}`)
+        setSaving(false)
+        return
       }
     }
 
@@ -132,9 +139,15 @@ export default function ConfigForm() {
           </p>
         )}
         <Field label="Upload nhạc mới (MP3, tối đa 20 MB)">
-          <input type="file" accept="audio/mpeg,audio/mp3" className={inputCls} onChange={(e) => setMusicFile(e.target.files?.[0] ?? null)} />
+          <input type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg" className={inputCls} onChange={(e) => setMusicFile(e.target.files?.[0] ?? null)} />
         </Field>
       </div>
+
+      {errorMsg && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-3 py-2 font-body text-sm">
+          ⚠️ {errorMsg}
+        </div>
+      )}
 
       <button type="submit" disabled={saving}
         className="w-full bg-burg text-cream font-body font-medium py-3 rounded-xl hover:bg-burg-2 transition-colors disabled:opacity-60">
