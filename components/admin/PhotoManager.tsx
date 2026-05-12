@@ -11,6 +11,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { PhotoEntry } from '@/lib/types'
 import Image from 'next/image'
+import { createClient } from '@/lib/supabase/client'
 
 function SortablePhoto({ photo, onDelete }: { photo: PhotoEntry; onDelete: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: photo.url })
@@ -47,6 +48,8 @@ export default function PhotoManager() {
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
 
+  const [uploadError, setUploadError] = useState<string>('')
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -71,18 +74,34 @@ export default function PhotoManager() {
     const files = Array.from(e.target.files ?? [])
     if (!files.length) return
     setUploading(true)
+    setUploadError('')
+    const supabase = createClient()
     const newPhotos: PhotoEntry[] = []
     for (const file of files) {
-      const fd = new FormData()
-      fd.append('file', file)
-      const res = await fetch('/api/upload/photos', { method: 'POST', body: fd })
-      if (res.ok) {
-        const { url } = await res.json()
-        newPhotos.push({ url, sort_order: photos.length + newPhotos.length })
+      try {
+        const signRes = await fetch('/api/upload/photos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'sign', name: file.name, type: file.type }),
+        })
+        const sign = await signRes.json().catch(() => ({}))
+        if (!signRes.ok) throw new Error(sign.error || `Sign failed (${signRes.status})`)
+
+        const { error: upErr } = await supabase.storage
+          .from('wedding-photos')
+          .uploadToSignedUrl(sign.path, sign.token, file, {
+            contentType: file.type || 'image/jpeg',
+            upsert: true,
+          })
+        if (upErr) throw new Error(`Storage upload failed: ${upErr.message}`)
+
+        newPhotos.push({ url: sign.publicUrl, sort_order: photos.length + newPhotos.length })
+      } catch (err) {
+        setUploadError(`${file.name}: ${err instanceof Error ? err.message : String(err)}`)
       }
     }
     setPhotos((prev) => [...prev, ...newPhotos])
-    setDirty(true)
+    if (newPhotos.length) setDirty(true)
     setUploading(false)
     e.target.value = ''
   }
@@ -110,10 +129,16 @@ export default function PhotoManager() {
       <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-[#E4D8C6] rounded-xl cursor-pointer hover:border-burg transition-colors bg-white mb-4">
         <span className="text-2xl mb-1">{uploading ? '⏳' : '📷'}</span>
         <span className="font-body text-sm text-soft">
-          {uploading ? 'Đang upload...' : 'Chọn ảnh để upload (JPG/PNG/WEBP, max 10 MB)'}
+          {uploading ? 'Đang upload...' : 'Chọn ảnh để upload (JPG/PNG/WEBP)'}
         </span>
         <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
       </label>
+
+      {uploadError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-3 py-2 font-body text-sm mb-3">
+          ⚠️ {uploadError}
+        </div>
+      )}
 
       {photos.length > 0 ? (
         <>

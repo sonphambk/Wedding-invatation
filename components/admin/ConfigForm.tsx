@@ -2,6 +2,7 @@
 import { useEffect, useState, FormEvent } from 'react'
 import { WeddingConfig } from '@/lib/types'
 import { VN_BANKS } from '@/lib/vietqr'
+import { createClient } from '@/lib/supabase/client'
 
 const BANK_OPTIONS = Object.entries(VN_BANKS).map(([code, name]) => ({ code, name }))
 
@@ -39,15 +40,39 @@ export default function ConfigForm() {
     setErrorMsg('')
 
     if (musicFile) {
-      const fd = new FormData()
-      fd.append('file', musicFile)
-      const res = await fetch('/api/upload/music', { method: 'POST', body: fd })
-      const data = await res.json().catch(() => ({}))
-      if (res.ok && data.url) {
-        config.music_url = data.url
+      try {
+        // Step 1: get signed upload URL (small JSON request → passes Vercel 4.5MB limit)
+        const signRes = await fetch('/api/upload/music', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'sign', name: musicFile.name, type: musicFile.type }),
+        })
+        const signData = await signRes.json().catch(() => ({}))
+        if (!signRes.ok) throw new Error(signData.error || `Sign failed (${signRes.status})`)
+
+        // Step 2: upload directly to Supabase Storage (no Vercel size limit)
+        const supabase = createClient()
+        const { error: upErr } = await supabase.storage
+          .from('wedding-music')
+          .uploadToSignedUrl(signData.path, signData.token, musicFile, {
+            contentType: musicFile.type || 'audio/mpeg',
+            upsert: true,
+          })
+        if (upErr) throw new Error(`Storage upload failed: ${upErr.message}`)
+
+        // Step 3: finalize – server updates DB with the public URL
+        const finRes = await fetch('/api/upload/music', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'finalize', publicUrl: signData.publicUrl }),
+        })
+        const finData = await finRes.json().catch(() => ({}))
+        if (!finRes.ok) throw new Error(finData.error || `Finalize failed (${finRes.status})`)
+
+        config.music_url = finData.url
         setMusicFile(null)
-      } else {
-        setErrorMsg(`Upload nhạc thất bại: ${data.error || res.statusText}`)
+      } catch (err) {
+        setErrorMsg(`Upload nhạc thất bại: ${err instanceof Error ? err.message : String(err)}`)
         setSaving(false)
         return
       }
@@ -59,6 +84,7 @@ export default function ConfigForm() {
       body: JSON.stringify(config),
     })
     if (res.ok) setSaved(true)
+    else setErrorMsg(`Lưu config thất bại (${res.status})`)
     setSaving(false)
   }
 
