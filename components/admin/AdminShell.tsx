@@ -3,13 +3,15 @@ import { useState } from 'react'
 import ConfigForm from './ConfigForm'
 import PhotoManager from './PhotoManager'
 import WishesManager from './WishesManager'
+import ThemeEditor from './ThemeEditor'
 
-type Tab = 'config' | 'photos' | 'wishes'
+type Tab = 'config' | 'photos' | 'wishes' | 'theme'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'config', label: 'Thông tin' },
   { id: 'photos', label: 'Ảnh' },
   { id: 'wishes', label: 'Lời chúc' },
+  { id: 'theme', label: '🎨 Giao diện' },
 ]
 
 export default function AdminShell() {
@@ -52,6 +54,7 @@ export default function AdminShell() {
         {tab === 'config' && <ConfigForm />}
         {tab === 'photos' && <PhotoManager />}
         {tab === 'wishes' && <WishesManager />}
+        {tab === 'theme' && <ThemeEditor />}
       </main>
     </div>
   )
