@@ -1,3 +1,8 @@
+// lib/types.ts
+import { WeddingTheme } from './theme'
+
+export type { WeddingTheme }
+
 export interface PhotoEntry {
   url: string;
   sort_order: number;
@@ -21,6 +26,7 @@ export interface WeddingConfig {
   bank2_holder: string;
   music_url: string;
   photos: PhotoEntry[];
+  theme_json: WeddingTheme | null;
   updated_at: string;
 }
 
@@ -34,5 +40,4 @@ export interface Wish {
 }
 
 export type PublicConfig = Omit<WeddingConfig, 'updated_at'>;
-
 export type PublicWish = Pick<Wish, 'id' | 'guest_name' | 'message' | 'likes' | 'created_at'>;
