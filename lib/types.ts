@@ -26,6 +26,10 @@ export interface WeddingConfig {
   bank2_holder: string;
   music_url: string;
   photos: PhotoEntry[];
+  /**
+   * Raw JSONB from DB — shape is unverified at runtime.
+   * Always pass through resolveTheme() before use.
+   */
   theme_json: WeddingTheme | null;
   updated_at: string;
 }

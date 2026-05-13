@@ -64,13 +64,16 @@ const MIN_FONT_SCALE = 0.8
 const MAX_FONT_SCALE = 1.4
 const HEX_COLOR_RE = /^#[0-9A-Fa-f]{6}$/
 
-function resolveFontName(value: unknown, fallback: string): string {
-  if (typeof value !== 'string') {
-    return fallback
-  }
-
+function resolveFontName(
+  value: unknown,
+  fallback: string,
+  allowed?: readonly string[]
+): string {
+  if (typeof value !== 'string') return fallback
   const normalized = value.trim()
-  return normalized.length > 0 ? normalized : fallback
+  if (normalized.length === 0) return fallback
+  if (allowed && !allowed.includes(normalized)) return fallback
+  return normalized
 }
 
 function resolveFontScale(value: unknown, fallback: number): number {
@@ -99,9 +102,21 @@ export function resolveTheme(raw: unknown): WeddingTheme {
     if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
       const t = raw as Record<string, unknown>
       return {
-        fontHeading: resolveFontName(t.fontHeading, DEFAULT_THEME.fontHeading),
-        fontBody: resolveFontName(t.fontBody, DEFAULT_THEME.fontBody),
-        fontScript: resolveFontName(t.fontScript, DEFAULT_THEME.fontScript),
+        fontHeading: resolveFontName(
+          t.fontHeading,
+          DEFAULT_THEME.fontHeading,
+          HEADING_FONTS.map((f) => f.name)
+        ),
+        fontBody: resolveFontName(
+          t.fontBody,
+          DEFAULT_THEME.fontBody,
+          BODY_FONTS.map((f) => f.name)
+        ),
+        fontScript: resolveFontName(
+          t.fontScript,
+          DEFAULT_THEME.fontScript,
+          SCRIPT_FONTS.map((f) => f.name)
+        ),
         fontSizeHeadingScale: resolveFontScale(t.fontSizeHeadingScale, DEFAULT_THEME.fontSizeHeadingScale),
         fontSizeBodyScale: resolveFontScale(t.fontSizeBodyScale, DEFAULT_THEME.fontSizeBodyScale),
         colorPrimary: resolveHexColor(t.colorPrimary, DEFAULT_THEME.colorPrimary),
@@ -116,13 +131,19 @@ export function resolveTheme(raw: unknown): WeddingTheme {
 
 /** Build a CSS custom properties string suitable for injecting inside :root { ... } */
 export function buildCssVars(theme: WeddingTheme): string {
+  const SAFE_HEX_RE = /^#[0-9A-Fa-f]{6}$/
+
+  function safeColor(value: string, fallback: string): string {
+    return SAFE_HEX_RE.test(value) ? value : fallback
+  }
+
   return [
     `--font-heading: '${escapeCssString(theme.fontHeading)}', serif;`,
     `--font-body: '${escapeCssString(theme.fontBody)}', sans-serif;`,
     `--font-script: '${escapeCssString(theme.fontScript)}', cursive;`,
-    `--color-primary: ${theme.colorPrimary};`,
-    `--color-accent: ${theme.colorAccent};`,
+    `--color-primary: ${safeColor(theme.colorPrimary, DEFAULT_THEME.colorPrimary)};`,
+    `--color-accent: ${safeColor(theme.colorAccent, DEFAULT_THEME.colorAccent)};`,
     `--scale-heading: ${theme.fontSizeHeadingScale};`,
     `--scale-body: ${theme.fontSizeBodyScale};`,
-  ].join(' ')
+  ].join('\n  ')
 }
