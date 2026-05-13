@@ -41,9 +41,9 @@ A `NULL` value falls back to the default theme constants defined in `lib/theme.t
 
 ```typescript
 export interface WeddingTheme {
-  fontHeading: string        // CSS font-family value, e.g. "'Cormorant Garamond', serif"
-  fontBody: string           // e.g. "'Montserrat', sans-serif"
-  fontScript: string         // e.g. "'Great Vibes', cursive"
+  fontHeading: string        // bare font name, e.g. "Cormorant Garamond"
+  fontBody: string           // bare font name, e.g. "Montserrat"
+  fontScript: string         // bare font name, e.g. "Great Vibes"
   fontSizeHeadingScale: number  // multiplier 0.8–1.4, default 1.0
   fontSizeBodyScale: number     // multiplier 0.8–1.4, default 1.0
   colorPrimary: string       // hex, default "#7C1B2B" (burgundy)
@@ -51,9 +51,9 @@ export interface WeddingTheme {
 }
 
 export const DEFAULT_THEME: WeddingTheme = {
-  fontHeading: "'Cormorant Garamond', serif",
-  fontBody: "'Montserrat', sans-serif",
-  fontScript: "'Great Vibes', cursive",
+  fontHeading: "Cormorant Garamond",
+  fontBody: "Montserrat",
+  fontScript: "Great Vibes",
   fontSizeHeadingScale: 1.0,
   fontSizeBodyScale: 1.0,
   colorPrimary: "#7C1B2B",
@@ -61,11 +61,13 @@ export const DEFAULT_THEME: WeddingTheme = {
 }
 ```
 
+Font names are stored as bare names (e.g. `"Cormorant Garamond"`). `lib/theme.ts` exports a `buildCssVars(theme)` function that appends the correct fallback category: heading → `, serif`, body → `, sans-serif`, script → `, cursive`. The curated font list in `ThemeEditor.tsx` stores metadata `{ name: string, category: 'serif'|'sans-serif'|'cursive' }` for this mapping. The bare font name is also used to construct the Google Fonts URL: `?family=Cormorant+Garamond|Montserrat|Great+Vibes`.
+
 ### CSS custom properties (injected in `app/layout.tsx`)
 
 ```css
 :root {
-  --font-heading: 'Cormorant Garamond', serif;
+  --font-heading: 'Cormorant Garamond', serif;  /* built by buildCssVars() */
   --font-body: 'Montserrat', sans-serif;
   --font-script: 'Great Vibes', cursive;
   --color-primary: #7C1B2B;
