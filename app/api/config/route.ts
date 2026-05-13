@@ -5,6 +5,7 @@ const ALLOWED_FIELDS = new Set([
   'bride_name', 'groom_name', 'wedding_date', 'venue_name', 'venue_address',
   'maps_url', 'dresscode', 'extra_notes', 'bank1_code', 'bank1_account',
   'bank1_holder', 'bank2_code', 'bank2_account', 'bank2_holder', 'music_url', 'photos',
+  'theme_json',
 ]);
 
 export async function GET() {
