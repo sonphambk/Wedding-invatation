@@ -50,48 +50,48 @@ export default function InvitationMessage({ config, guestName }: Props) {
         }
         .im-eyebrow {
           display: block;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: .68rem;
           letter-spacing: .38em;
           text-transform: uppercase;
-          color: #C9A96E;
+          color: var(--color-accent);
           margin-bottom: .75rem;
         }
         .im-title {
-          font-family: 'Great Vibes', cursive;
-          font-size: clamp(2.5rem, 7vw, 4rem);
-          color: #7C1B2B;
+          font-family: var(--font-script);
+          font-size: calc(clamp(2.5rem, 7vw, 4rem) * var(--scale-heading, 1));
+          color: var(--color-primary);
           line-height: 1;
           margin: 0 0 1.5rem;
         }
         .im-intro {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-style: italic;
-          font-size: clamp(.95rem, 2vw, 1.1rem);
+          font-size: calc(clamp(.95rem, 2vw, 1.1rem) * var(--scale-body, 1));
           color: #5C3535;
           line-height: 1.7;
           margin: 0 0 1.25rem;
         }
         .im-guest {
-          font-family: 'Great Vibes', cursive;
+          font-family: var(--font-script);
           font-size: clamp(1.6rem, 4.5vw, 2.4rem);
-          color: #7C1B2B;
+          color: var(--color-primary);
           line-height: 1;
           margin: 0 0 1.5rem;
         }
         .im-names {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-weight: 600;
-          font-size: clamp(1.4rem, 4vw, 2rem);
+          font-size: calc(clamp(1.4rem, 4vw, 2rem) * var(--scale-heading, 1));
           letter-spacing: .04em;
           color: #231010;
           text-transform: uppercase;
           line-height: 1.3;
         }
         .im-amp {
-          font-family: 'Great Vibes', cursive;
+          font-family: var(--font-script);
           font-weight: 400;
-          color: #C9A96E;
+          color: var(--color-accent);
           font-size: 1.4em;
           text-transform: none;
           margin: 0 .35em;
@@ -102,9 +102,9 @@ export default function InvitationMessage({ config, guestName }: Props) {
         }
         .im-count-label {
           display: block;
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-style: italic;
-          font-size: clamp(.95rem, 2vw, 1.1rem);
+          font-size: calc(clamp(.95rem, 2vw, 1.1rem) * var(--scale-body, 1));
           color: #5C3535;
           margin-bottom: 1.25rem;
         }
@@ -122,20 +122,20 @@ export default function InvitationMessage({ config, guestName }: Props) {
         .im-cell::before {
           content: '';
           position: absolute; inset: 4px;
-          border: 1px solid #C9A96E; opacity: .35;
+          border: 1px solid var(--color-accent); opacity: .35;
           pointer-events: none;
         }
         .im-cell-num {
           display: block;
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-weight: 500;
-          font-size: clamp(1.5rem, 4.5vw, 2.4rem);
-          color: #7C1B2B;
+          font-size: calc(clamp(1.5rem, 4.5vw, 2.4rem) * var(--scale-heading, 1));
+          color: var(--color-primary);
           line-height: 1;
         }
         .im-cell-lbl {
           display: block;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: .58rem;
           letter-spacing: .25em;
           text-transform: uppercase;

@@ -43,7 +43,7 @@ export default function EventDetails({ config }: Props) {
         .ev-frame::before {
           content: '';
           position: absolute; inset: 6px;
-          border: 1px solid #C9A96E; opacity: .35;
+          border: 1px solid var(--color-accent); opacity: .35;
           pointer-events: none; z-index: 2;
         }
         .ev-img {
@@ -57,7 +57,7 @@ export default function EventDetails({ config }: Props) {
           font-family: 'Noto Serif SC', 'Songti SC', serif;
           font-weight: 700;
           font-size: clamp(5rem, 12vw, 8rem);
-          color: #7C1B2B;
+          color: var(--color-primary);
           opacity: .6;
         }
 
@@ -69,32 +69,32 @@ export default function EventDetails({ config }: Props) {
         }
         .ev-eyebrow {
           display: block;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: .68rem;
           letter-spacing: .38em;
           text-transform: uppercase;
-          color: #C9A96E;
+          color: var(--color-accent);
           margin-bottom: .65rem;
         }
         .ev-title {
-          font-family: 'Great Vibes', cursive;
-          font-size: clamp(2.2rem, 5.5vw, 3rem);
-          color: #7C1B2B;
+          font-family: var(--font-script);
+          font-size: calc(clamp(2.2rem, 5.5vw, 3rem) * var(--scale-heading, 1));
+          color: var(--color-primary);
           line-height: 1;
           margin: 0 0 1.5rem;
         }
         .ev-date {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-weight: 300;
-          font-size: clamp(2.6rem, 8vw, 4.5rem);
-          color: #7C1B2B;
+          font-size: calc(clamp(2.6rem, 8vw, 4.5rem) * var(--scale-heading, 1));
+          color: var(--color-primary);
           line-height: 1;
           letter-spacing: -.01em;
           margin: 0 0 .6rem;
         }
         .ev-weekday {
           display: block;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: .7rem;
           letter-spacing: .35em;
           text-transform: uppercase;
@@ -102,7 +102,7 @@ export default function EventDetails({ config }: Props) {
           margin-bottom: .35rem;
         }
         .ev-time {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-style: italic;
           font-size: clamp(1.05rem, 2.2vw, 1.25rem);
           color: #231010;
@@ -110,12 +110,12 @@ export default function EventDetails({ config }: Props) {
         }
         .ev-time strong {
           font-weight: 600;
-          color: #7C1B2B;
+          color: var(--color-primary);
           font-style: normal;
         }
         .ev-divider {
           width: 80px; height: 1px;
-          background: #C9A96E; opacity: .55;
+          background: var(--color-accent); opacity: .55;
           margin: 1.5rem 0;
         }
         @media (max-width: 720px) {
@@ -126,16 +126,16 @@ export default function EventDetails({ config }: Props) {
           gap: .9rem;
         }
         .ev-ev {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           color: #231010;
         }
         .ev-ev-label {
           display: block;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: .62rem;
           letter-spacing: .3em;
           text-transform: uppercase;
-          color: #C9A96E;
+          color: var(--color-accent);
           margin-bottom: .25rem;
         }
         .ev-ev-line {
@@ -145,7 +145,7 @@ export default function EventDetails({ config }: Props) {
         }
         .ev-ev-line strong {
           font-weight: 600;
-          color: #7C1B2B;
+          color: var(--color-primary);
         }
       `}</style>
 

@@ -44,7 +44,7 @@ export default function LocationMap({ config }: Props) {
         }
         .loc-frame::before {
           content: ''; position: absolute; inset: 6px;
-          border: 1px solid #C9A96E; opacity: .35;
+          border: 1px solid var(--color-accent); opacity: .35;
           pointer-events: none; z-index: 2;
         }
         .loc-map {
@@ -61,29 +61,29 @@ export default function LocationMap({ config }: Props) {
 
         .loc-eyebrow {
           display: block;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: .68rem; letter-spacing: .38em;
-          text-transform: uppercase; color: #C9A96E;
+          text-transform: uppercase; color: var(--color-accent);
           margin-bottom: .65rem;
         }
         .loc-title {
-          font-family: 'Great Vibes', cursive;
-          font-size: clamp(2.2rem, 5.5vw, 3rem);
-          color: #7C1B2B;
+          font-family: var(--font-script);
+          font-size: calc(clamp(2.2rem, 5.5vw, 3rem) * var(--scale-heading, 1));
+          color: var(--color-primary);
           line-height: 1;
           margin: 0 0 1.5rem;
         }
         .loc-venue {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-weight: 600;
-          font-size: clamp(1.2rem, 2.6vw, 1.45rem);
+          font-size: calc(clamp(1.2rem, 2.6vw, 1.45rem) * var(--scale-heading, 1));
           color: #231010;
           margin: 0 0 .55rem;
           letter-spacing: .02em;
           text-transform: uppercase;
         }
         .loc-address {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-style: italic;
           font-size: clamp(.95rem, 1.8vw, 1.05rem);
           color: #5C3535;
@@ -100,21 +100,21 @@ export default function LocationMap({ config }: Props) {
         .loc-btn {
           display: inline-flex; align-items: center; gap: .5rem;
           padding: .85rem 1.6rem;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: .68rem; letter-spacing: .25em; text-transform: uppercase;
           text-decoration: none; cursor: pointer;
           transition: background .25s, color .25s;
         }
         .loc-btn-primary {
-          background: #7C1B2B; color: #FAF8F3;
-          border: 1px solid #7C1B2B;
+          background: var(--color-primary); color: #FAF8F3;
+          border: 1px solid var(--color-primary);
         }
         .loc-btn-primary:hover { background: #5A1120; }
         .loc-btn-secondary {
-          background: transparent; color: #7C1B2B;
-          border: 1px solid #7C1B2B;
+          background: transparent; color: var(--color-primary);
+          border: 1px solid var(--color-primary);
         }
-        .loc-btn-secondary:hover { background: #7C1B2B; color: #FAF8F3; }
+        .loc-btn-secondary:hover { background: var(--color-primary); color: #FAF8F3; }
       `}</style>
 
       <section className="loc-sec" aria-label="Địa điểm">

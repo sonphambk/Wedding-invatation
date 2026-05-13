@@ -30,7 +30,7 @@ export default function ParentsSection({ config }: Props) {
           font-family: 'Noto Serif SC', 'Songti SC', serif;
           font-weight: 700;
           font-size: clamp(220px, 50vw, 540px);
-          color: #7C1B2B;
+          color: var(--color-primary);
           opacity: .035;
           line-height: 1;
           pointer-events: none;
@@ -45,7 +45,7 @@ export default function ParentsSection({ config }: Props) {
         }
         .parents-quote {
           text-align: center;
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-style: italic;
           font-size: clamp(1rem, 2.2vw, 1.25rem);
           color: #5C3535;
@@ -64,14 +64,14 @@ export default function ParentsSection({ config }: Props) {
         }
         .parents-label {
           display: inline-block;
-          font-family: 'Great Vibes', cursive;
+          font-family: var(--font-script);
           font-size: clamp(1.5rem, 4vw, 2rem);
-          color: #7C1B2B;
+          color: var(--color-primary);
           margin-bottom: 1rem;
           line-height: 1;
         }
         .parents-name {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-size: clamp(.92rem, 1.9vw, 1.05rem);
           letter-spacing: .04em;
           color: #231010;
@@ -79,7 +79,7 @@ export default function ParentsSection({ config }: Props) {
           margin: 0;
         }
         .parents-loc {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-style: italic;
           font-size: clamp(.85rem, 1.7vw, .98rem);
           color: #5C3535;
@@ -88,7 +88,7 @@ export default function ParentsSection({ config }: Props) {
         .parents-divider {
           width: 1px;
           height: clamp(120px, 18vw, 180px);
-          background: linear-gradient(to bottom, transparent, #C9A96E 25%, #C9A96E 75%, transparent);
+          background: linear-gradient(to bottom, transparent, var(--color-accent) 25%, var(--color-accent) 75%, transparent);
           opacity: .55;
           position: relative;
         }
@@ -99,7 +99,7 @@ export default function ParentsSection({ config }: Props) {
           left: 50%;
           transform: translate(-50%, -50%);
           background: #FAF6EE;
-          color: #C9A96E;
+          color: var(--color-accent);
           font-size: 1rem;
           padding: 0 .4rem;
         }
@@ -111,7 +111,7 @@ export default function ParentsSection({ config }: Props) {
           .parents-divider {
             width: 60%;
             height: 1px;
-            background: linear-gradient(to right, transparent, #C9A96E 25%, #C9A96E 75%, transparent);
+            background: linear-gradient(to right, transparent, var(--color-accent) 25%, var(--color-accent) 75%, transparent);
             margin: 0 auto;
           }
         }

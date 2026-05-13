@@ -30,7 +30,7 @@ export default function HeroCard({ config, guestName }: Props) {
         .hero::before, .hero::after {
           content: ''; position: absolute;
           width: clamp(40px, 6vw, 64px); height: clamp(40px, 6vw, 64px);
-          border-color: #C9A96E; border-style: solid; opacity: .45;
+          border-color: var(--color-accent); border-style: solid; opacity: .45;
           pointer-events: none;
         }
         .hero::before { top: clamp(18px, 3vw, 32px); left: clamp(18px, 3vw, 32px); border-width: 1px 0 0 1px; }
@@ -42,7 +42,7 @@ export default function HeroCard({ config, guestName }: Props) {
           transform: translate(-50%, -50%);
           font-family: serif;
           font-size: clamp(260px, 50vw, 620px);
-          color: #7C1B2B; opacity: .04;
+          color: var(--color-primary); opacity: .04;
           line-height: 1; user-select: none; pointer-events: none;
         }
 
@@ -65,9 +65,9 @@ export default function HeroCard({ config, guestName }: Props) {
           top: 50%;
           bottom: auto;
           transform: translate(-50%, 70%) rotate(-5deg);
-          font-family: 'Great Vibes', cursive;
+          font-family: var(--font-script);
           font-weight: 400;
-          font-size: clamp(2.6rem, 8vw, 5.4rem);
+          font-size: calc(clamp(2.6rem, 8vw, 5.4rem) * var(--scale-heading, 1));
           color: #f4cabd;
           opacity: .85;
           line-height: 1;
@@ -80,10 +80,10 @@ export default function HeroCard({ config, guestName }: Props) {
         .hero-date {
           position: relative;
           z-index: 2;
-          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-family: var(--font-heading);
           font-weight: 300;
-          font-size: clamp(3.6rem, 13vw, 9rem);
-          color: #7C1B2B;
+          font-size: calc(clamp(3.6rem, 13vw, 9rem) * var(--scale-heading, 1));
+          color: var(--color-primary);
           line-height: .9;
           letter-spacing: -.02em;
           margin: 0;
@@ -93,20 +93,20 @@ export default function HeroCard({ config, guestName }: Props) {
         .hero-rule { display: none; }
 
         .hero-names {
-          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-family: var(--font-heading);
           font-weight: 500;
-          font-size: clamp(1.4rem, 4.2vw, 2.8rem);
+          font-size: calc(clamp(1.4rem, 4.2vw, 2.8rem) * var(--scale-heading, 1));
           letter-spacing: .14em;
-          color: #7C1B2B;
+          color: var(--color-primary);
           line-height: 1.3;
           margin: clamp(2rem, 4vw, 2.75rem) 0 0;
           animation: fadeUp 1s ease both .95s;
         }
         .hero-amp {
-          font-family: 'Allura', 'Great Vibes', cursive;
+          font-family: var(--font-script);
           font-weight: 400;
           font-size: 1.25em;
-          color: #7C1B2B;
+          color: var(--color-primary);
           letter-spacing: 0;
           display: inline-block;
           margin: 0 .25em;
@@ -115,7 +115,7 @@ export default function HeroCard({ config, guestName }: Props) {
 
         .hero-eyebrow {
           display: block;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: clamp(.62rem, 1.1vw, .72rem);
           letter-spacing: .38em;
           text-transform: uppercase;
@@ -125,7 +125,7 @@ export default function HeroCard({ config, guestName }: Props) {
         }
         .hero-place {
           display: block;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: clamp(.62rem, 1.1vw, .72rem);
           letter-spacing: .35em;
           text-transform: uppercase;
@@ -138,7 +138,7 @@ export default function HeroCard({ config, guestName }: Props) {
           display: flex; align-items: baseline; gap: .5rem;
           max-width: min(90%, 460px);
           margin: clamp(1.5rem, 3vw, 2rem) auto 0;
-          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-family: var(--font-heading);
           font-style: italic;
           font-size: clamp(.85rem, 1.5vw, 1rem);
           color: #5C3535;
@@ -152,7 +152,7 @@ export default function HeroCard({ config, guestName }: Props) {
           padding: 0 .25em .15em;
           font-style: normal;
           font-weight: 500;
-          color: #7C1B2B;
+          color: var(--color-primary);
           text-align: center;
           min-height: 1.5em;
         }
@@ -165,13 +165,13 @@ export default function HeroCard({ config, guestName }: Props) {
           animation: fadeIn 1s ease both 1.8s;
         }
         .scroll-cue span {
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: .6rem; letter-spacing: .3em;
           text-transform: uppercase; color: #7A5555;
         }
         .scroll-tick {
           width: 1px; height: 44px;
-          background: linear-gradient(to bottom, #C9A96E, transparent);
+          background: linear-gradient(to bottom, var(--color-accent), transparent);
           animation: tickPulse 2s ease-in-out infinite;
         }
 
@@ -188,11 +188,11 @@ export default function HeroCard({ config, guestName }: Props) {
           .save-bg {
             /* same diagonal "behind the date" look as desktop, scaled */
             transform: translate(-50%, 70%) rotate(-5deg);
-            font-size: clamp(2rem, 10vw, 3.2rem);
+            font-size: calc(clamp(2rem, 10vw, 3.2rem) * var(--scale-heading, 1));
             opacity: .85;
           }
-          .hero-date { font-size: clamp(2.8rem, 14vw, 4.4rem); }
-          .hero-names { letter-spacing: .1em; font-size: clamp(1.1rem, 5.2vw, 1.6rem); }
+          .hero-date { font-size: calc(clamp(2.8rem, 14vw, 4.4rem) * var(--scale-heading, 1)); }
+          .hero-names { letter-spacing: .1em; font-size: calc(clamp(1.1rem, 5.2vw, 1.6rem) * var(--scale-heading, 1)); }
         }
 
         @media (prefers-reduced-motion: reduce) {
