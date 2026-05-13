@@ -25,18 +25,18 @@ export default function CouplePortraits({ config }: Props) {
         .cp-eyebrow {
           display: block;
           text-align: center;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: .68rem;
           letter-spacing: .38em;
           text-transform: uppercase;
-          color: #C9A96E;
+          color: var(--color-accent);
           margin-bottom: .6rem;
         }
         .cp-title {
           text-align: center;
-          font-family: 'Great Vibes', cursive;
-          font-size: clamp(2rem, 5.5vw, 3rem);
-          color: #7C1B2B;
+          font-family: var(--font-script);
+          font-size: calc(clamp(2rem, 5.5vw, 3rem) * var(--scale-heading, 1));
+          color: var(--color-primary);
           line-height: 1;
           margin: 0 0 clamp(2rem, 5vw, 3rem);
         }
@@ -61,7 +61,7 @@ export default function CouplePortraits({ config }: Props) {
         .cp-frame::before {
           content: '';
           position: absolute; inset: 6px;
-          border: 1px solid #C9A96E; opacity: .35;
+          border: 1px solid var(--color-accent); opacity: .35;
           pointer-events: none; z-index: 2;
         }
         .cp-img {
@@ -72,14 +72,14 @@ export default function CouplePortraits({ config }: Props) {
         .cp-placeholder {
           width: 100%; height: 100%;
           display: flex; align-items: center; justify-content: center;
-          font-family: 'Great Vibes', cursive;
+          font-family: var(--font-script);
           font-size: clamp(3rem, 8vw, 5rem);
-          color: #C9A96E;
+          color: var(--color-accent);
           background: linear-gradient(135deg, #F0E9DC, #E4D8C6);
         }
         .cp-role {
           display: block;
-          font-family: 'Montserrat', sans-serif;
+          font-family: var(--font-body);
           font-size: .65rem;
           letter-spacing: .35em;
           text-transform: uppercase;
@@ -87,10 +87,10 @@ export default function CouplePortraits({ config }: Props) {
           margin-top: 1.25rem;
         }
         .cp-name {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-heading);
           font-weight: 500;
-          font-size: clamp(1.2rem, 2.8vw, 1.55rem);
-          color: #7C1B2B;
+          font-size: calc(clamp(1.2rem, 2.8vw, 1.55rem) * var(--scale-heading, 1));
+          color: var(--color-primary);
           margin: .5rem 0 0;
           letter-spacing: .02em;
         }
